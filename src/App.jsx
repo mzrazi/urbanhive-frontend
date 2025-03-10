@@ -12,6 +12,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProductPage from './pages/ProductPage'
 import VendorLoginPage from './pages/VendorLoginPage'
 import VendorRegisterPage from './pages/VendorRegisterPage'
+import VendorHome from './pages/VendorHome'
 // import NotFoundPage from './pages/NotFoundPage'
 
 // Customer Pages
@@ -35,6 +36,8 @@ import UserHome from './pages/UserHome'
 
 // Protected Routes
 import ProtectedRoute from './components/ProtectedRoute'
+import CartPage from './pages/cart'
+import VendorOrdersPage from './pages/vendorOrders'
 
 function App() {
   const { isLoading } = useAuth()
@@ -54,10 +57,14 @@ function App() {
         <Route index element={<LandingPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
-        {/* <Route path="product/:id" element={<ProductPage />} /> */}
+        <Route path="/product" element={<ProductPage />} />
         <Route path="vendor/login" element={<VendorLoginPage />} />
         <Route path="vendor/register" element={<VendorRegisterPage />} />
+        <Route path="vendor/home" element={<VendorHome />} />
         <Route path='/home' element={<UserHome/>}/>
+        <Route path='/cart' element={<CartPage/>}/>
+        <Route path='/vendor/orders' element={<VendorOrdersPage/>}/>
+
         {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Route>
 

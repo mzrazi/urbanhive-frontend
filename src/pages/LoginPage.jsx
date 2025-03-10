@@ -11,47 +11,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState(null)
-  
-  const { login } = useAuth()
+
+  const { loginUser } = useAuth() // Access the login function for customers
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors(null); // Reset previous errors
-
-    if (!email || !password) {
-      setErrors({ general: 'Please fill in all fields' });
-      return;
-    }
+    e.preventDefault()
+    setIsLoading(true)
+    const formData = { email, password }
 
     try {
-      setIsLoading(true);
-
-      const response = await fetch('http://localhost:5000/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      setIsLoading(false);
-
-      if (!response.ok) {
-        setErrors({ general: data.message || 'Login failed' });
-        return;
+      const success = await loginUser(email, password) // Directly pass email and password to the login function
+      if (success) {
+        navigate('/home') // Redirect on successful login
+      } else {
+        setErrors({ general: 'Invalid email or password' }) // Handle invalid login
       }
-
-      // Save token & authenticate user
-      localStorage.setItem('token', data.token);
-      login(data.user); // Set user context
-
-      navigate('/'); // Redirect after successful login
-
-    } catch (err) {
-      setIsLoading(false);
-      setErrors({ general: 'Something went wrong. Try again!' });
+    } catch (error) {
+      setErrors({ general: error.message }) // Handle any errors from the login function
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">

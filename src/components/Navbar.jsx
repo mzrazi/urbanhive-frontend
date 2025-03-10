@@ -23,29 +23,39 @@ const Navbar = () => {
   }
 
   const getDashboardLink = () => {
+    console.log(isAuthenticated);
+    
     if (!isAuthenticated) return '/login'
     return userType === 'vendor' ? '/vendor' : '/customer'
   }
+  const getHomeLink = () => {
+    console.log("is?"+isAuthenticated);
+    
+    if (!isAuthenticated) return '/'; // Default landing page for unauthenticated users
+    console.log(userType);
+    
+    return userType === 'vendor' ? '/vendor/home' : '/home'; // Specific home pages for vendors and customers
+  };
 
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link to={getHomeLink()} className="flex-shrink-0 flex items-center">
               <span className="text-urbanhive-600 font-bold text-xl">UrbanHive</span>
             </Link>
             <nav className="hidden md:ml-6 md:flex space-x-8">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <Link to="/">
+                    <Link to={getHomeLink()}>
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         Home
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
-                  <NavigationMenuItem>
+                  {/* <NavigationMenuItem>
                     <Link to="/products">
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         Products
@@ -58,54 +68,62 @@ const Navbar = () => {
                         Vendors
                       </NavigationMenuLink>
                     </Link>
-                  </NavigationMenuItem>
+                  </NavigationMenuItem> */}
                 </NavigationMenuList>
               </NavigationMenu>
             </nav>
           </div>
           
           <div className="hidden md:flex items-center">
-            {isAuthenticated ? (
-              <>
-                {userType === 'customer' && (
-                  <Link to="/customer/cart" className="relative mr-4">
-                    <ShoppingCart className="h-6 w-6 text-gray-600" />
-                    {totalItems > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-urbanhive-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {totalItems}
-                      </span>
-                    )}
-                  </Link>
-                )}
-                <Link to={getDashboardLink()}>
-                  <Button variant="outline" size="sm" className="mr-2">
-                    <User className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button variant="ghost" size="sm" onClick={logout}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="outline" size="sm" className="mr-2">
-                    Customer Login
-                  </Button>
-                </Link>
-                <Link to="/vendor/login">
-                  <Button size="sm">
-                    Vendor Login
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+  {isAuthenticated ? (
+    <>
+      {/* Show cart icon only for customers */}
+      {userType === 'customer' && (
+        <Link to="/cart" className="relative mr-4">
+          <ShoppingCart className="h-6 w-6 text-gray-600" />
+          {totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-urbanhive-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {totalItems}
+            </span>
+          )}
+        </Link>
+      )}
+
+      {/* Show dashboard button only for vendors */}
+      {userType === 'vendor' && (
+        <Link to={getDashboardLink()}>
+          <Button variant="outline" size="sm" className="mr-2">
+            <User className="h-4 w-4 mr-2" />
+            Dashboard
+          </Button>
+        </Link>
+      )}
+
+      {/* Logout button for all authenticated users */}
+      <Button variant="ghost" size="sm" onClick={logout}>
+        Logout
+      </Button>
+    </>
+  ) : (
+    <>
+      {/* Show login buttons for unauthenticated users */}
+      <Link to="/login">
+        <Button variant="outline" size="sm" className="mr-2">
+          Customer Login
+        </Button>
+      </Link>
+      <Link to="/vendor/login">
+        <Button size="sm">
+          Vendor Login
+        </Button>
+      </Link>
+    </>
+  )}
+</div>
           
           <div className="flex items-center md:hidden">
             {isAuthenticated && userType === 'customer' && (
-              <Link to="/customer/cart" className="relative mr-4">
+              <Link to="/cart" className="relative mr-4">
                 <ShoppingCart className="h-6 w-6 text-gray-600" />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-urbanhive-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

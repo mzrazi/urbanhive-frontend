@@ -22,7 +22,7 @@ export default function ProductsPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       {/* Search and Filter Section */}
-      <div className="flex justify-between mb-4 gap-4">
+      {/* <div className="flex justify-between mb-4 gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           <Input
@@ -46,7 +46,7 @@ export default function ProductsPage() {
             <DropdownMenuItem onSelect={() => setFilter("Highest Price")}>Highest Price</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div> */}
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

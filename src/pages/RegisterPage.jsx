@@ -6,7 +6,6 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card'
 import { useAuth } from '../context/AuthContext'
 
-
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -17,7 +16,7 @@ const RegisterPage = () => {
     address: '',
   })
   const [errors, setErrors] = useState({})
-  const { register, isLoading } = useAuth()
+  const { registerUser, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -51,8 +50,12 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const success = await register(formData) // Call register function from AuthContext
-    if (success) navigate('/home') // Redirect on successful registration
+
+    // Validate form
+    if (!validateForm()) return
+
+    const success = await registerUser(formData) // Call register function from AuthContext
+    if (success) navigate('/login') // Redirect on successful registration
   }
 
   return (
