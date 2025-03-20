@@ -21,7 +21,7 @@ const VendorLoginPage = () => {
     setIsLoading(true)
 
     try {
-      const response = await loginVendor({ email, password }) // Use the login method from AuthContext
+      const response = await loginVendor(email, password ) // Use the login method from AuthContext
         console.log(response);
         
      

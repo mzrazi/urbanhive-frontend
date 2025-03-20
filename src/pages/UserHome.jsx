@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import exp from "constants";
+import { ShoppingCart, Filter, Search } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const UserHome = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -148,11 +151,29 @@ const UserHome = () => {
             <h2 className="text-2xl font-bold">Featured Products</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
               {featuredProducts.map((product) => (
-                <div key={product.id} className="border p-4 rounded-lg">
-                  <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-md" />
-                  <h3 className="mt-2 font-semibold">{product.name}</h3>
-                  <p className="text-gray-600">${product.price}</p>
+                  <Link to="/vendors">
+              <Card key={product.id} className="p-4 flex flex-col gap-2 h-[400px]">
+              {/* Fixed size image container */}
+              <div className="w-full h-48 overflow-hidden rounded-lg">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <CardContent className="p-2 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <p className="text-sm text-gray-500">{product.vendor}</p>
+                  <p className="text-xl font-bold mt-1">₹{product.price}</p>
                 </div>
+                <Button className="mt-2 w-full flex items-center gap-2">
+                  <ShoppingCart size={16} /> Add to Cart
+                </Button>
+              </CardContent>
+            </Card>
+            </Link>
               ))}
             </div>
           </section>

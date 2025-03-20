@@ -23,16 +23,16 @@ const Navbar = () => {
   }
 
   const getDashboardLink = () => {
-    console.log(isAuthenticated);
+ 
     
     if (!isAuthenticated) return '/login'
-    return userType === 'vendor' ? '/vendor' : '/customer'
+    return userType === 'vendor' ? '/vendor/dashboard' : '/customer'
   }
   const getHomeLink = () => {
-    console.log("is?"+isAuthenticated);
+   
     
     if (!isAuthenticated) return '/'; // Default landing page for unauthenticated users
-    console.log(userType);
+    
     
     return userType === 'vendor' ? '/vendor/home' : '/home'; // Specific home pages for vendors and customers
   };

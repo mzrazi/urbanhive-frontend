@@ -15,8 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('urbanhive_user');
-    console.log('Stored User from localStorage:', storedUser); // Log to check the data
-    
+   
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
@@ -49,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.user.name}!`,
+        description: `Welcome back, ${data.name}!`,
       })
 
       navigate('/customer') // Navigate to customer dashboard or home
@@ -66,52 +65,64 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Vendor Login
   const loginVendor = async (email, password) => {
     try {
-      setIsLoading(true)
-     
-      const response = await fetch('http://localhost:5000/api/vendors/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.email, password: email.password }),  // Correct structure
-      });
+      setIsLoading(true);
 
-      const data = await response.json()
-      console.log(data);
+    
       
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
+  
+      const response = await fetch("http://localhost:5000/api/vendors/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      // Handle 403 status (vendor not approved)
+      if (response.status === 403) {
+        throw new Error(data.message || "Your account is pending approval. Please contact the admin.");
       }
-
-      setUser(data.user)
-      localStorage.setItem('urbanhive_user', JSON.stringify(data.user))
-
+  
+      // Handle other errors
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+  
+      // Save the user data and token in localStorage
+      setUser(data.user);
+      localStorage.setItem("urbanhive_user", JSON.stringify(data.user));
+  
+      // Show success toast
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.user.name}!`,
+        description: `Welcome back, ${data.name}!`,
       })
 
-      navigate('/vendor/home') 
+      // Navigate to the vendor home page
+      navigate("/vendor/home");
+  
       return {
         success: true,
-        user: data.vendor,  // Ensure you're sending back the user data here
-      }
+        user: data.user, // Return the user data
+      };
     } catch (error) {
-
-      console.log('triggered');
-      
+      // Show error toast
       toast({
-        title: 'Login failed',
-        description: error.message || 'Invalid credentials',
-        variant: 'destructive',
-      })
-      return false
+        title: "Login failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
+      return {
+        success: false,
+        error: error.message || "Login failed",
+      };
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
 
   // Customer Register
   const registerUser = async (userData) => {
@@ -132,7 +143,7 @@ export const AuthProvider = ({ children }) => {
       // localStorage.setItem('urbanhive_user', JSON.stringify(data.user))
 
       toast({
-        title: "Vendor registered successfully!",
+        title: "registered successfully!",
         description: "You can now log in with your credentials.",
         variant: "success",
       });
@@ -171,8 +182,7 @@ export const AuthProvider = ({ children }) => {
 
       toast({
         title: "Vendor registered successfully!",
-        description: "You can now log in with your credentials.",
-        variant: "success",
+        description: "sitback tight!! our team will get back to u soon for confirmation.",
       });
 
       navigate('/vendor/login')
