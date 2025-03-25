@@ -43,6 +43,8 @@ const VendorListingPage = () => {
                 //     }
                 //   ]
       // Group vendors by category
+
+      
       const groupedVendors = vendors.reduce((acc, vendor) => {
         if (!acc[vendor.category]) {
           acc[vendor.category] = [];
@@ -86,6 +88,25 @@ const VendorListingPage = () => {
     handleUseCurrentLocation();
   }, []);
 
+  const categoryDefaultImages = {
+    Clothing: "https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg",
+    Grocery: "https://images.pexels.com/photos/5945721/pexels-photo-5945721.jpeg",
+    "Sports Goods": "https://images.pexels.com/photos/3997982/pexels-photo-3997982.jpeg",
+    Furniture: "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg",
+    "Spare Parts": "https://images.pexels.com/photos/4488647/pexels-photo-4488647.jpeg",
+    Electronics: "https://images.pexels.com/photos/3825581/pexels-photo-3825581.jpeg",
+    Books: "https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg",
+    "Beauty & Personal Care": "https://images.pexels.com/photos/6621180/pexels-photo-6621180.jpeg",
+    "Toys & Games": "https://images.pexels.com/photos/3661190/pexels-photo-3661190.jpeg",
+    "Home Appliances": "https://images.pexels.com/photos/3769747/pexels-photo-3769747.jpeg",
+    Automotive: "https://images.pexels.com/photos/4489749/pexels-photo-4489749.jpeg",
+    "Health & Wellness": "https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg",
+    Jewelry: "https://images.pexels.com/photos/1550048/pexels-photo-1550048.jpeg",
+    "Pet Supplies": "https://images.pexels.com/photos/4588018/pexels-photo-4588018.jpeg",
+    Others: "https://images.pexels.com/photos/357514/pexels-photo-357514.jpeg",
+  };
+  
+
   return (
     <div className="container mx-auto p-6">
       <section className="text-center text-white py-12 bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg">
@@ -108,36 +129,28 @@ const VendorListingPage = () => {
               <h2 className="text-2xl font-bold">{category}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 {vendors.map((vendor) => (
-                  <Card key={vendor.id} className="p-4 flex flex-col gap-2 h-[300px]">
-                    <div className="w-full h-32 overflow-hidden rounded-lg">
-                      <img
-                        src={vendor.logo||"https://images.pexels.com/photos/257816/pexels-photo-257816.jpeg"}
-                        alt={`${vendor.storeName} logo`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-2 flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">{vendor.storeName}</h3>
-                          <p className="text-sm text-gray-500">
-                          {vendor.storeAddress}
-                        </p>
-
-                        <div className="flex justify-center items-center mt-2">
-                          <span className="mr-2 text-yellow-500">
-                            {'★'.repeat(Math.floor(vendor.rating))}
-                          </span>
-                          <span className="text-gray-600">({vendor.rating})</span>
-                        </div>
-                      </div>
-                      {/* <Link to={`/products/${vendor.id}`}> */}
-
-                      <Link to={`/products/${vendor._id}`}>
-                      <Button className="mt-2 w-full">Visit Store</Button>
-                      </Link>
-
-                    </CardContent>
-                  </Card>
+                 <Card key={vendor.id} className="p-4 flex flex-col gap-2 h-[300px]">
+                 <div className="w-full h-32 overflow-hidden rounded-lg">
+                   <img
+                     src={vendor.logo || categoryDefaultImages[vendor.category] || "https://via.placeholder.com/150"}
+                     alt={`${vendor.storeName} logo`}
+                     className="w-full h-full object-cover"
+                   />
+                 </div>
+                 <CardContent className="p-2 flex-1 flex flex-col justify-between">
+                   <div>
+                     <h3 className="font-semibold text-lg">{vendor.storeName}</h3>
+                     <p className="text-sm text-gray-500">{vendor.storeAddress}</p>
+                     <div className="flex justify-center items-center mt-2">
+                       <span className="mr-2 text-yellow-500">{'★'.repeat(Math.floor(vendor.rating))}</span>
+                       <span className="text-gray-600">({vendor.rating})</span>
+                     </div>
+                   </div>
+                   <Link to={`/products/${vendor._id}`}>
+                     <Button className="mt-2 w-full">Visit Store</Button>
+                   </Link>
+                 </CardContent>
+               </Card>
                 ))}
               </div>
             </section>

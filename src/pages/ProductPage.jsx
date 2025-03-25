@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Filter, Search } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 
 export default function ProductsPage() {
@@ -67,6 +67,9 @@ export default function ProductsPage() {
         {!loading &&
           !error &&
           filteredProducts.map((product) => (
+          
+            
+           
             <Card key={product._id} className="p-4 flex flex-col gap-2">
               <img
                 src={`http://localhost:5000${product.image}`}
@@ -77,11 +80,14 @@ export default function ProductsPage() {
                 <h3 className="font-semibold text-lg">{product.name}</h3>
                 <p className="text-sm text-gray-500">{product.vendor}</p>
                 <p className="text-xl font-bold mt-1">₹{product.price}</p>
+               <Link to='/cart'>
                 <Button className="mt-2 w-full flex items-center gap-2">
                   <ShoppingCart size={16} /> Add to Cart
                 </Button>
+                </Link>
               </CardContent>
             </Card>
+            
           ))}
       </div>
     </div>
