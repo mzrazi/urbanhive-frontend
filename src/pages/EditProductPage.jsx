@@ -82,7 +82,7 @@ const EditProductPage = () => {
     }
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/product/${productId}`, updatedProductData, {
+      const response = await axios.put(`http://localhost:5000/api/vendors/update-product/${productId}`, updatedProductData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -161,7 +161,7 @@ const EditProductPage = () => {
               <div className="space-y-2">
                 <Label htmlFor="image">Product Image</Label>
                 {formData.image && typeof formData.image === "string" && (
-                  <img src={formData.image} alt="Product" className="w-24 h-24 object-cover rounded-md mb-2" />
+                  <img src={`http://localhost:5000${formData.image}`} alt="Product" className="w-24 h-24 object-cover rounded-md mb-2" />
                 )}
                 <input
                   type="file"

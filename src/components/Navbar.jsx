@@ -36,6 +36,15 @@ const Navbar = () => {
     
     return userType === 'vendor' ? '/vendor/home' : '/home'; // Specific home pages for vendors and customers
   };
+  const getOrdersLink = () => {
+   
+    
+    if (!isAuthenticated) return '/'; // Default landing page for unauthenticated users
+    
+    
+    return userType === 'vendor' ? '/vendor/orders' : '/orders'; // Specific home pages for vendors and customers
+  };
+  
 
   return (
     <header className="bg-white shadow-sm">
@@ -55,14 +64,14 @@ const Navbar = () => {
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
-                  {/* <NavigationMenuItem>
-                    <Link to="/products">
+                  <NavigationMenuItem>
+                    <Link to={getOrdersLink()}>
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Products
+                        orders
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
-                  <NavigationMenuItem>
+                  {/* <NavigationMenuItem>
                     <Link to="/vendors">
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         Vendors

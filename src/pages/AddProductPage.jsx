@@ -22,7 +22,7 @@ const AddProductPage = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value, type, files } = e.target; 
     if (type === "file") {
       setFormData((prevData) => ({
         ...prevData,
@@ -82,8 +82,15 @@ const AddProductPage = () => {
         if (formRef.current) {
           formRef.current.reset();
         }
-        navigate("/vendor/add-product");
-      }
+        setFormData({
+          name: "",
+          price: 0,
+          category: "",
+          description: "",
+          image: null,
+        });
+        
+      } 
     } catch (error) {
       console.error("Error adding product:", error);
       setError("Failed to add product. Please try again.");

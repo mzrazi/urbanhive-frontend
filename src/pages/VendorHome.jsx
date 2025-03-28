@@ -212,7 +212,7 @@ const VendorHome = () => {
                     <p className="text-gray-600 mt-2">₹{product.price}</p>
                     <div className="mt-4 flex justify-between items-center">
                       <Link
-                        to={`/vendor/edit-product/${product.id}`}
+                        to={`/vendor/edit-product/${product._id}`}
                         className="text-blue-500 hover:text-blue-700"
                       >
                         Edit

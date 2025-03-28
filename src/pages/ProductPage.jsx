@@ -3,9 +3,9 @@ import axios from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Filter, Search } from "lucide-react";
+import { ShoppingCart, Search } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-
+import { useToast } from '../hooks/use-toast'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -13,16 +13,13 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { vendorId } = useParams();
-  
+  const [cart, setCart] = useState([]);
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-       
         const response = await axios.get(`http://localhost:5000/api/vendors/products/${vendorId}`);
-        
-        console.log(response);
-        
         setProducts(response.data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -32,8 +29,101 @@ export default function ProductsPage() {
       }
     };
 
+    const fetchCart = async () => {
+      try {
+        const userData = localStorage.getItem("urbanhive_user");
+        if (!userData) return console.warn("User not logged in");
+    
+        const user = JSON.parse(userData); // Parse stored user data
+        console.log(user);
+        
+        if (!user.id) return console.warn("Invalid user data");
+    
+        const res = await axios.get(`http://localhost:5000/api/users/cart/${user.id}`);
+       console.log(res.data)
+        setCart(res.data);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+      }
+    };
+    
+
     fetchProducts();
-  }, []);
+    fetchCart();
+  }, [vendorId]);
+
+  // Add to Cart Function
+  const handleAddToCart = async (product) => {
+
+    
+    if (!product || !product._id) return;
+    
+    
+    
+    // Check if cart contains items from another store
+    if (cart.length > 0 && cart[0].product.vendor !== product.vendor) {
+
+      const confirmClear = window.confirm(
+        "Your cart contains items from another store. Do you want to remove them and add this item?"
+      );
+
+      if (!confirmClear) return;
+      const userData = localStorage.getItem("urbanhive_user");
+      const user = JSON.parse(userData);
+
+     
+      await axios.put("http://localhost:5000/api/users/cart/clear", { userid: user.id });
+      setCart([]);
+    }
+
+    try {
+     
+    
+      // 2️⃣ Use optional chaining to safely access `_id`
+      const existingProduct = cart.find((item) => item?.product?._id === product._id);
+    
+
+      if (existingProduct) {
+        const userData = localStorage.getItem("urbanhive_user");
+        const user = JSON.parse(userData);
+        // Increase quantity if product already exists in cart
+        const res = await axios.put(
+          `http://localhost:5000/api/users/cart/update`,
+          {userid:user.id,productid:existingProduct.product._id, quantity: existingProduct.quantity + 1 },
+       
+        );
+        setCart((prev) =>
+          prev.map((item) =>
+            item.product._id === existingProduct.product._id ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        );
+      } else {
+
+        const userData = localStorage.getItem("urbanhive_user");
+        const user = JSON.parse(userData);
+        
+        // Add new product to cart
+        const res = await axios.post(
+          "http://localhost:5000/api/users/cart/add",
+          {userid:user.id, productId: product._id, vendorId: product.vendorId, quantity: 1 }
+          
+        );
+        setCart([...cart, res.data]);
+        toast({
+          title: 'added to cart',
+          description: `item added to cart succesfully`,
+        })
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      toast({
+        title: 'couldnt add to cart',
+        description: `something went wrong`,
+        variant: "destructive",
+        
+      })
+    }
+  };
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
@@ -67,12 +157,13 @@ export default function ProductsPage() {
         {!loading &&
           !error &&
           filteredProducts.map((product) => (
-          
-            
-           
             <Card key={product._id} className="p-4 flex flex-col gap-2">
               <img
-                src={`http://localhost:5000${product.image}`}
+                src={
+                  product.image.startsWith("http")
+                    ? product.image
+                    : `http://localhost:5000${product.image}`
+                }
                 alt={product.name}
                 className="rounded-lg h-40 object-cover"
               />
@@ -80,14 +171,14 @@ export default function ProductsPage() {
                 <h3 className="font-semibold text-lg">{product.name}</h3>
                 <p className="text-sm text-gray-500">{product.vendor}</p>
                 <p className="text-xl font-bold mt-1">₹{product.price}</p>
-               <Link to='/cart'>
-                <Button className="mt-2 w-full flex items-center gap-2">
+                <Button
+                  className="mt-2 w-full flex items-center gap-2"
+                  onClick={() => handleAddToCart(product)}
+                >
                   <ShoppingCart size={16} /> Add to Cart
                 </Button>
-                </Link>
               </CardContent>
             </Card>
-            
           ))}
       </div>
     </div>

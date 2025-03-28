@@ -4,69 +4,86 @@ import axios from "axios";
 import { Users, Store, ShoppingBag, DollarSign } from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center">
-        <div className={`p-2 rounded-lg ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-        <div className="ml-4">
-          <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
-        </div>
+  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+    <div className="flex items-center">
+      <div className={`p-2 rounded-lg ${color}`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      <div className="ml-4">
+        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
+        <p className="text-2xl font-semibold text-gray-900">{value}</p>
       </div>
     </div>
-  );
+  </div>
+);
 
 const VendorDashboard = () => {
-  const [vendorProducts, setVendorProducts] = useState([]);
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalProducts: 0,
+    totalUsers: 0,
+    revenue: 0,
+    averageRating: 0,
+  });
   const [loading, setLoading] = useState(true);
-  const stats = {
-    totalOrders: '1,234',
-    totalVendors: '56',
-    totalUsers: '2,345',
-    revenue: '$45,678'
-  };
 
-
-  // Mock data for demonstration (replace with actual API call)
-  // useEffect(() => {
-  //   const fetchVendorProducts = async () => {
-  //     try {
-  //       // Replace with your actual API endpoint
-  //       const res = await axios.get("/api/vendor/products");
-  //       setVendorProducts(res.data);
-  //     } catch (error) {
-  //       console.error("Error fetching vendor products:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   // Simulate API call delay
-  //   setTimeout(() => {
-  //     fetchVendorProducts();
-  //   }, 1000);
-  // }, []);
-
+  // Call the API to fetch the vendor stats
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchVendorStats = async () => {
       try {
-        // const [productsRes, vendorsRes] = await Promise.all([
-        //   axios.get("/api/products/featured"),
-        //   axios.get("/api/vendors/popular"),
-        // ]);
-       
-          
-          setVendorProducts(data)
+        const userData = localStorage.getItem("urbanhive_user");
+        if (!userData) {
+          console.warn("User not logged in");
+          setLoading(false);
+          return;
+        }
+    
+        const user = JSON.parse(userData);
+        if (!user._id) {
+          console.warn("Invalid user data");
+          setLoading(false);
+          return;
+        }
+
+        console.log('Fetching data for vendor:', user._id);
+        const response = await axios.get(`http://localhost:5000/api/vendors/dashboard/${user._id}`); // Assuming your API endpoint is this
         
+        console.log('API Response:', response.data);
+        const data = response.data;
+        
+        // Check if the data is valid before setting it
+        if (data) {
+          setStats({
+            totalOrders: data.totalOrders || 0,
+            totalProducts: data.totalProducts || 0,
+            totalUsers: data.totalUsers || 0,
+            revenue: data.totalRevenue || 0,
+            averageRating: data.averageRating || 0,
+          });
+        } else {
+          console.warn('No data received');
+        }
+
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
+        console.error("Error fetching vendor stats:", error);
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchVendorStats();
   }, []);
+
+  // If loading, display loading spinner or skeleton
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center py-12">
+          <h1 className="text-4xl font-bold text-gray-800">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -77,23 +94,23 @@ const VendorDashboard = () => {
           Manage and showcase your products with ease
         </p>
         <div className="flex space-x-6 justify-center">
-        <Link
-          to="/vendor/add-product"
-          className="mt-6 inline-block bg-white  text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
-        >
-          Add New Product
-        </Link>
+          <Link
+            to="/vendor/add-product"
+            className="mt-6 inline-block bg-white text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+          >
+            Add New Product
+          </Link>
 
-
-        <Link
-          to="/vendor/orders"
-          className="mt-6 inline-block bg-white  text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
-        >
-         orders recieved
-        </Link>
-
+          <Link
+            to="/vendor/orders"
+            className="mt-6 inline-block bg-white text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+          >
+            Orders Received
+          </Link>
         </div>
       </section>
+
+      {/* Stats Section */}
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Orders"
@@ -102,8 +119,8 @@ const VendorDashboard = () => {
           color="bg-blue-500"
         />
         <StatCard
-          title="Total products"
-          value={stats.totalVendors}
+          title="Total Products"
+          value={stats.totalProducts}
           icon={Store}
           color="bg-green-500"
         />
@@ -115,9 +132,15 @@ const VendorDashboard = () => {
         />
         <StatCard
           title="Total Revenue"
-          value={stats.revenue}
+          value={`$${stats.revenue.toLocaleString()}`} // Format as currency
           icon={DollarSign}
           color="bg-yellow-500"
+        />
+        <StatCard
+          title="Average Rating"
+          value={stats.averageRating.toFixed(1)} // Show one decimal for average rating
+          icon={ShoppingBag}
+          color="bg-red-500"
         />
       </div>
     </div>

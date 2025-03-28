@@ -1,166 +1,222 @@
 import { useState, useEffect } from "react";
-import { Link,useNavigate  } from "react-router-dom";
+import { Link} from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useToast } from '../hooks/use-toast'
+
 
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subtotal, setSubtotal] = useState(0);
-  const [deliveryCharge, setDeliveryCharge] = useState(5); // Example delivery charge
-  const [discount, setDiscount] = useState(10); // Example discount
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [discount, setDiscount] = useState(0);
   const [grandTotal, setGrandTotal] = useState(0);
-   const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { toast } = useToast()
+
 
   useEffect(() => {
-    // Simulate fetching cart items from localStorage or an API
-    const cartData = [
-      {
-        id: "1",
-        name: "Organic Vegetables Bundle",
-        price: 24.99,
-        quantity: 2,
-        image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1789&q=80",
-      },
-      {
-        id: "2",
-        name: "Handcrafted Leather Wallet",
-        price: 49.99,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80",
-      },
-    ];
-
-    // Set cart items and calculate subtotal
-    setCartItems(cartData);
-    const subtotal = cartData.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    setSubtotal(subtotal);
-    setGrandTotal(subtotal + deliveryCharge - discount);
-    setLoading(false);
+    fetchCartDetails();
   }, []);
 
-  const handleQuantityChange = (id, action) => {
-    const updatedCartItems = cartItems.map((item) => {
-      if (item.id === id) {
-        if (action === "increase") {
-          item.quantity += 1;
-        } else if (action === "decrease" && item.quantity > 1) {
-          item.quantity -= 1;
-        }
-      }
-      return item;
-    });
-
-    setCartItems(updatedCartItems);
-    const subtotal = updatedCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    setSubtotal(subtotal);
-    setGrandTotal(subtotal + deliveryCharge - discount);
-  };
-
-  const handleRemoveItem = (id) => {
-    const updatedCartItems = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedCartItems);
-    const subtotal = updatedCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    setSubtotal(subtotal);
-    setGrandTotal(subtotal + deliveryCharge - discount);
-  };
-
-  const handleSubmit = async () => {
- 
-  
-    setError('');
-    setLoading(true);
-  
+  const fetchCartDetails = async () => {
     try {
-      // 1. Request backend to create order
-      const response = await fetch('http://localhost:5000/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: parseInt(amount) * 100 }) // Convert to paise
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create order');
-      }
-  
-      const orderData = await response.json();
-  
-  
-      // 2. Check if Razorpay SDK is loaded
-      if (!window.Razorpay) {
-        setError('Razorpay SDK failed to load. Are you online?');
-        resetMessage(setError);
-        setLoading(false);
-        return;
-      }
-  
-      // 3. Setup Razorpay options
-      const options = {
-        key: "rzp_test_6i5nQKZQNF4RNj",
-        amount: orderData.orderAmount,
-        currency: "INR",
-        name: "Masjid Donation",
-        description: "Support our Masjid",
-        order_id: orderData.orderId,
-        handler: async function (response) {
-          console.log(response);
-  
-          const paymentDetails = {
-            userId,
-            paymentId: response.razorpay_payment_id,
-            orderId: response.razorpay_order_id,
-            signature: response.razorpay_signature,
-            amount: orderData.orderAmount,
-            paymentDate: new Date().toISOString()
-          };
-  
-          setLoading(true);
+      const userData = localStorage.getItem("urbanhive_user");
+      if (!userData) return console.warn("User not logged in");
+
+      const user = JSON.parse(userData);
+      if (!user.id) return console.warn("Invalid user data");
+
+      // Get user's current location
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
           try {
-            const verifyResponse = await fetch('http://localhost:5000/api/verify-payment', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(paymentDetails)
-            });
-  
-            const verifyData = await verifyResponse.json();
-            if (verifyData.status === 'success') {
-              setSuccess('Donation successful. Thank you!');
-              resetMessage(setSuccess);
-              setAmount('');
-            } else {
-              setError('Payment verification failed. Please try again.');
-              resetMessage(setError);
-            }
+            const { data } = await axios.post(
+              "http://localhost:5000/api/users/cart/details",
+              { userid: user.id, lat, lng }
+            );
+
+            setCartItems(data.cart);
+            setSubtotal(data.subtotal);
+            setDiscount(data.discount);
+            setDeliveryCharge(data.deliveryCharge);
+            setGrandTotal(data.grandTotal);
           } catch (error) {
-            setError('Error sending payment details. Please try again.');
-            resetMessage(setError);
+            console.error("Error fetching cart details:", error);
           } finally {
             setLoading(false);
           }
         },
-        theme: {
-          color: "#3399cc"
+        (error) => {
+          console.error("Error fetching location:", error);
+          // If location fetching fails, still fetch cart data without location
+          fetchCartWithoutLocation(user.id);
         }
-      };
-  
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-  
-      setTimeout(() => {
-        if (!rzp._modal) {
-          setError('Payment modal failed to open. Please try again.');
-          resetMessage(setError);
-          setLoading(false);
-        }
-      }, 5000); // 5 seconds
+      );
     } catch (error) {
-      setError(error.message || 'Error initiating payment. Please try again later.');
-      resetMessage(setError);
+      console.error("Error fetching cart:", error);
+      setLoading(false);
+    }
+  };
+
+  const fetchCartWithoutLocation = async (userid) => {
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/users/cart/details", { userid });
+      setCartItems(data.cart);
+      setSubtotal(data.subtotal);
+      setDiscount(data.discount);
+      setDeliveryCharge(data.deliveryCharge);
+      setGrandTotal(data.grandTotal);
+    } catch (error) {
+      console.error("Error fetching cart without location:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleQuantityChange = async (productId, action) => {
+    try {
+      const userData = localStorage.getItem("urbanhive_user");
+      const user = JSON.parse(userData);
+      const updatedItem = cartItems.find((item) => item.product._id === productId);
+      if (!updatedItem) return;
+
+      let newQuantity = updatedItem.quantity;
+      if (action === "increase") newQuantity++;
+      if (action === "decrease" && newQuantity > 1) newQuantity--;
+
+      await axios.put("http://localhost:5000/api/users/cart/update", {
+        userid: user.id,
+        productid: productId,
+        quantity: newQuantity,
+      });
+
+      fetchCartDetails();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const handleRemoveItem = async (productId) => {
+    try {
+      const userData = localStorage.getItem("urbanhive_user");
+      const user = JSON.parse(userData);
+
+      await axios.delete("http://localhost:5000/api/users/cart/remove", {
+        data: { userid: user.id, productId },
+      });
+
+      fetchCartDetails();
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      const userData = localStorage.getItem("urbanhive_user");
+      const user = JSON.parse(userData);
+
+      await axios.put("http://localhost:5000/api/users/cart/clear", { userid: user.id });
+      setCartItems([]);
+      setSubtotal(0);
+      setDiscount(0);
+      setDeliveryCharge(0);
+      setGrandTotal(0);
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  };
+  
+
+  const handleSubmit = async () => {
+    
+  
+    try {
+      // Fetch user data from localStorage
+      const userData = localStorage.getItem("urbanhive_user");
+      if (!userData) return console.warn("User not logged in");
+  
+      const user = JSON.parse(userData);
+      if (!user.id) return console.warn("Invalid user data");
+  
+      // Prepare order details
+      const orderData = {
+        userId: user.id,
+        vendorId: cartItems[0]?.product.vendor,
+        products: cartItems.map(item => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+        })),
+        totalAmount: grandTotal,
+      };
+  
+      // Create Razorpay order
+      const response = await axios.post("http://localhost:5000/api/users/create-order", orderData);
+      const { razorpayOrderId, razorpayPaymentKey } = response.data;
+  
+      // Razorpay payment options
+      const options = {
+        key: razorpayPaymentKey,
+        amount: grandTotal * 100,
+        currency: "INR",
+        order_id: razorpayOrderId,
+        name: "UrbanHive Store",
+        description: "Order Payment",
+        image: "https://example.com/logo.png",
+        handler: async function (response) {
+          try {
+         
+            if (!response.razorpay_payment_id) {
+              console.warn("Payment failed, order not saved.");
+              return;
+            }
+  
+            // Save order after successful payment
+            const paymentData = {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            };
+  
+            await axios.post("http://localhost:5000/api/users/save-order", paymentData);
+  
+            console.log("Order saved successfully");
+  
+            
+            navigate("/order-success");
+          } catch (error) {
+            console.error("Error saving order:", error);
+            toast({
+              title: "Payment failed",
+              description: "Could not save order. Please contact support.",
+              variant: "destructive",
+            });
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone,
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
+  
+      // Open Razorpay payment
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Error during checkout:", error);
+    }
+  };
+  
 
   return (
     <div className="container mx-auto p-6">
@@ -171,92 +227,84 @@ const CartPage = () => {
 
       {loading ? (
         <p className="text-center mt-6">Loading...</p>
-      ) : (
+      ) : cartItems.length > 0 ? (
         <>
-          {cartItems.length > 0 ? (
-            <section className="mt-12">
-              <h2 className="text-2xl font-bold">Cart Items</h2>
-              <div className="space-y-4 mt-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="border p-4 rounded-lg flex items-center justify-between">
-                    <div className="flex items-center">
-                      <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-md" />
-                      <div className="ml-4">
-                        <h3 className="font-semibold">{item.name}</h3>
-                        <p className="text-gray-600">${item.price} each</p>
-                        <div className="mt-2 flex items-center space-x-2">
-                          <button
-                            onClick={() => handleQuantityChange(item.id, "decrease")}
-                            className="px-2 py-1 bg-gray-300 rounded-md text-sm"
-                          >
-                            -
-                          </button>
-                          <span className="text-lg font-semibold">{item.quantity}</span>
-                          <button
-                            onClick={() => handleQuantityChange(item.id, "increase")}
-                            className="px-2 py-1 bg-gray-300 rounded-md text-sm"
-                          >
-                            +
-                          </button>
-                        </div>
+          <section className="mt-12">
+            <h2 className="text-2xl font-bold">Cart Items</h2>
+            <div className="space-y-4 mt-4">
+              {cartItems.map((item) => (
+                <div key={item.product._id} className="border p-4 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center">
+                    <img
+                      src={`http://localhost:5000${item.product.image}`}
+                      alt={item.product.name}
+                      className="w-20 h-20 object-cover rounded-md"
+                    />
+                    <div className="ml-4">
+                      <h3 className="font-semibold">{item.product.name}</h3>
+                      <p className="text-gray-600">₹{item.product.price} each</p>
+                      <div className="mt-2 flex items-center space-x-2">
+                        <button
+                          onClick={() => handleQuantityChange(item.product._id, "decrease")}
+                          className="px-2 py-1 bg-gray-300 rounded-md text-sm"
+                        >
+                          -
+                        </button>
+                        <span className="text-lg font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => handleQuantityChange(item.product._id, "increase")}
+                          className="px-2 py-1 bg-gray-300 rounded-md text-sm"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <p className="text-lg font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                      <button
-                        onClick={() => handleRemoveItem(item.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        Remove
-                      </button>
-                    </div>
                   </div>
-                ))}
-              </div>
-            </section>
-          ) : (
-            <section className="mt-12 text-center">
-              <p>Your cart is empty.</p>
-              <Link to="/" className="text-urbanhive-600 hover:text-urbanhive-700 font-medium mt-4 block">
-                Continue Shopping
-              </Link>
-            </section>
-          )}
-
-          {cartItems.length > 0 && (
-            <section className="mt-12">
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <p>Subtotal</p>
-                    <p>${subtotal.toFixed(2)}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <p>Delivery Charges</p>
-                    <p>${deliveryCharge.toFixed(2)}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <p>Discount</p>
-                    <p className="text-green-600">-${discount.toFixed(2)}</p>
-                  </div>
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between font-semibold">
-                      <p>Grand Total</p>
-                      <p>${grandTotal.toFixed(2)}</p>
-                    </div>
+                  <div className="flex items-center space-x-4">
+                    <p className="text-lg font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
+                    <button onClick={() => handleRemoveItem(item.product._id)} className="text-red-500 hover:text-red-700">
+                      Remove
+                    </button>
                   </div>
                 </div>
-                <button
-                  
-                  className="w-full mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700"
-                >
-                  Proceed to Checkout
-                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-12">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <p>Subtotal</p>
+                  <p>₹{subtotal.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p>Delivery Charges</p>
+                  <p>₹{deliveryCharge.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p>Discount</p>
+                  <p className="text-green-600">-₹{discount.toFixed(2)}</p>
+                </div>
+                <div className="border-t pt-3">
+                  <div className="flex justify-between font-semibold">
+                    <p>Grand Total</p>
+                    <p>₹{grandTotal.toFixed(2)}</p>
+                  </div>
+                </div>
               </div>
-            </section>
-          )}
+              <button onClick={handleSubmit}  className="w-full mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700">
+                proceed to checkout
+              </button>
+              <button onClick={handleClearCart} className="w-full mt-4 px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-700">
+                Clear Cart
+              </button>
+            </div>
+          </section>
         </>
+      ) : (
+        <p className="text-center mt-12">Your cart is empty.</p>
       )}
     </div>
   );

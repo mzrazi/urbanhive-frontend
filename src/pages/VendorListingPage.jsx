@@ -3,12 +3,13 @@ import axios from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 
 const VendorListingPage = () => {
   const [vendorsByCategory, setVendorsByCategory] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+ 
   const fetchVendors = async (coordinates) => {
     try {
       // Fetch vendors based on coordinates (replace with your API endpoint)
@@ -17,7 +18,7 @@ const VendorListingPage = () => {
       );
       const vendors = response.data;
                 // const vendors=[
-                //     {
+                //     { 
                 //       "id": 1,
                 //       "name": "Tech Haven",
                 //       "location": "New York, USA",
@@ -52,7 +53,8 @@ const VendorListingPage = () => {
         acc[vendor.category].push(vendor);
         return acc;
       }, {});
-
+      console.log(groupedVendors);
+      
       setVendorsByCategory(groupedVendors);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -141,10 +143,42 @@ const VendorListingPage = () => {
                    <div>
                      <h3 className="font-semibold text-lg">{vendor.storeName}</h3>
                      <p className="text-sm text-gray-500">{vendor.storeAddress}</p>
-                     <div className="flex justify-center items-center mt-2">
-                       <span className="mr-2 text-yellow-500">{'★'.repeat(Math.floor(vendor.rating))}</span>
-                       <span className="text-gray-600">({vendor.rating})</span>
-                     </div>
+                     
+
+                  <div className="flex justify-center items-center mt-2">
+                    {/* Render 5 stars with possible half stars */}
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const ratingFloor = Math.floor(vendor.averageRating);
+                      const ratingDecimal = vendor.averageRating - ratingFloor;
+
+                      // Full star
+                      if (index < ratingFloor) {
+                        return (
+                          <span key={index} className="mr-1 text-yellow-500">
+                            <FaStar />
+                          </span>
+                        );
+                      }
+
+                      // Half star
+                      if (index === ratingFloor && ratingDecimal >= 0.5) {
+                        return (
+                          <span key={index} className="mr-1 text-yellow-500">
+                            <FaStarHalfAlt />
+                          </span>
+                        );
+                      }
+
+                      // Empty star
+                      return (
+                        <span key={index} className="mr-1 text-gray-300">
+                          <FaRegStar />
+                        </span>
+                      );
+                    })}
+                    <span className="text-gray-600 ml-2">({vendor.averageRating.toFixed(1)})</span>
+                  </div>
+
                    </div>
                    <Link to={`/products/${vendor._id}`}>
                      <Button className="mt-2 w-full">Visit Store</Button>
