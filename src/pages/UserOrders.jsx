@@ -36,6 +36,8 @@ const UserOrders = () => {
     };
 
     fetchUserOrders();
+    console.log(orders);
+    
   }, []);
 
   if (loading) {
@@ -103,6 +105,49 @@ const UserOrders = () => {
                   </p>
                 </div>
               </div>
+                        {/* Ordered Items Section */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Ordered Items
+            </h3>
+            <div className="space-y-4">
+                  {order.products.map((product) => {
+                    if (!product.productId) return null; // Ensure productId exists
+
+                    return (
+                      <div key={product.productId._id} className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg">
+                        {/* Product Image */}
+                        <img
+                          src={`http://localhost:5000${product.productId.image}` || "https://via.placeholder.com/100"}
+                          alt={product.productId.name || "Product Image"} // Avoid undefined errors
+                          className="w-16 h-16 object-cover rounded"
+                        />
+
+                        {/* Product Details */}
+                        <div className="flex-1">
+                          <h4 className="text-md font-medium text-gray-800">
+                            {product.productId.name || "Unknown Product"}
+                          </h4>
+                          <p className="text-sm text-gray-600">Price: ${product.productId.price || "N/A"}</p>
+                          <p className="text-sm text-gray-600">Quantity: {product.quantity || 1}</p>
+                        </div>
+
+                        {/* View Product Button */}
+                        <a
+                          href={`/product/${product.productId._id}`}
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          View Product
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+
+
+            
+          </div>
+
 
               {/* Order Timeline */}
               {/* <div className="mt-6">

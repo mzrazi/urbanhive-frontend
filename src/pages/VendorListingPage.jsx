@@ -12,38 +12,14 @@ const VendorListingPage = () => {
  
   const fetchVendors = async (coordinates) => {
     try {
+      
+      
       // Fetch vendors based on coordinates (replace with your API endpoint)
       const response = await axios.get(
         `http://localhost:5000/api/users/nearby?lat=${coordinates.latitude}&lng=${coordinates.longitude}`
       );
       const vendors = response.data;
-                // const vendors=[
-                //     { 
-                //       "id": 1,
-                //       "name": "Tech Haven",
-                //       "location": "New York, USA",
-                //       "rating": 4.5,
-                //       "logo": "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg",
-                //       "category": "Electronics"
-                //     },
-                //     {
-                //       "id": 2,
-                //       "name": "Gadget Galaxy",
-                //       "location": "San Francisco, USA",
-                //       "rating": 4.7,
-                //       "logo": "https://images.pexels.com/photos/3568520/pexels-photo-3568520.jpeg",
-                //       "category": "Electronics"
-                //     },
-                //     {
-                //       "id": 3,
-                //       "name": "Organic Bites",
-                //       "location": "London, UK",
-                //       "rating": 4.2,
-                //       "logo": "https://images.pexels.com/photos/257816/pexels-photo-257816.jpeg",
-                //       "category": "Restaurants"
-                //     }
-                //   ]
-      // Group vendors by category
+              
 
       
       const groupedVendors = vendors.reduce((acc, vendor) => {
@@ -86,7 +62,7 @@ const VendorListingPage = () => {
   };
 
   useEffect(() => {
-    // Automatically fetch vendors when the component mounts
+    
     handleUseCurrentLocation();
   }, []);
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
@@ -10,7 +10,6 @@ const EditProductPage = () => {
   const { productId } = useParams(); // Get product ID from URL
   const navigate = useNavigate();
   const { toast } = useToast();
-  const formRef = useRef(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +18,6 @@ const EditProductPage = () => {
     price: 0,
     category: "",
     description: "",
-    image: null,
   });
 
   useEffect(() => {
@@ -27,15 +25,12 @@ const EditProductPage = () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/vendors/getproduct/${productId}`);
         const product = response.data.product;
-        console.log(response);
-        
 
         setFormData({
           name: product.name || "",
           price: product.price || 0,
           category: product.category || "",
           description: product.description || "",
-          image: product.image || null, // Keep the existing image
         });
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -47,18 +42,11 @@ const EditProductPage = () => {
   }, [productId]);
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: files[0], // Update image only if a new one is selected
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value, // Update the relevant field
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -66,31 +54,25 @@ const EditProductPage = () => {
     setLoading(true);
     setError("");
 
+    // Ensure required fields are filled
     if (!formData.name || !formData.price || !formData.category) {
       setError("Please fill in all required fields.");
       setLoading(false);
       return;
     }
 
-    const updatedProductData = new FormData();
-    updatedProductData.append("name", formData.name);
-    updatedProductData.append("price", formData.price);
-    updatedProductData.append("category", formData.category);
-    updatedProductData.append("description", formData.description);
-    if (formData.image instanceof File) {
-      updatedProductData.append("image", formData.image); // Add new image if updated
-    }
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/vendors/update-product/${productId}`, updatedProductData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+     
+      
+      const response = await axios.put(
+        `http://localhost:5000/api/vendors/update-product/${productId}`,
+       formData,
+      );
 
       if (response.status === 200) {
         toast({ title: "Product updated successfully!" });
-        navigate(`/vendor/products`);
+        navigate(`/vendor/home`);
       }
     } catch (error) {
       console.error("Error updating product:", error);
@@ -156,21 +138,6 @@ const EditProductPage = () => {
                   onChange={handleChange}
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="image">Product Image</Label>
-                {formData.image && typeof formData.image === "string" && (
-                  <img src={`http://localhost:5000${formData.image}`} alt="Product" className="w-24 h-24 object-cover rounded-md mb-2" />
-                )}
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleChange}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                <p className="text-sm text-gray-500">Upload a new image to replace the current one.</p>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

@@ -1,10 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import exp from "constants";
-import { ShoppingCart, Filter, Search } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+// Default category images for products (if category exists, else fallback to a default image)
+const categoryDefaultImages = {
+  Clothing: "https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg",
+  Grocery: "https://images.pexels.com/photos/5945721/pexels-photo-5945721.jpeg",
+  "Sports Goods": "https://images.pexels.com/photos/3997982/pexels-photo-3997982.jpeg",
+  Furniture: "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg",
+  Electronics: "https://images.pexels.com/photos/3825581/pexels-photo-3825581.jpeg",
+  Books: "https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg",
+  "Beauty & Personal Care": "https://images.pexels.com/photos/6621180/pexels-photo-6621180.jpeg",
+  "Toys & Games": "https://images.pexels.com/photos/3661190/pexels-photo-3661190.jpeg",
+  "Home Appliances": "https://images.pexels.com/photos/3769747/pexels-photo-3769747.jpeg",
+  Automotive: "https://images.pexels.com/photos/4489749/pexels-photo-4489749.jpeg",
+  "Health & Wellness": "https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg",
+  Jewelry: "https://images.pexels.com/photos/1550048/pexels-photo-1550048.jpeg",
+  "Pet Supplies": "https://images.pexels.com/photos/4588018/pexels-photo-4588018.jpeg",
+  Others: "https://images.pexels.com/photos/357514/pexels-photo-357514.jpeg",
+};
 
 const UserHome = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -14,115 +31,12 @@ const UserHome = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const [productsRes, vendorsRes] = await Promise.all([
-        //   axios.get("/api/products/featured"),
-        //   axios.get("/api/vendors/popular"),
-        // ]);
-        const data = [
-            {
-              id: '1',
-              name: 'Organic Vegetables Bundle',
-              vendor: 'Fresh Farms',
-              price: 24.99,
-              originalPrice: 29.99,
-              discount: 17,
-              image: 'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1789&q=80',
-              inStock: true
-            },
-            {
-              id: '2',
-              name: 'Handcrafted Leather Wallet',
-              vendor: 'Artisan Goods',
-              price: 49.99,
-              originalPrice: 49.99,
-              discount: 0,
-              image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-              inStock: true
-            },
-            {
-              id: '3',
-              name: 'Wireless Bluetooth Headphones',
-              vendor: 'Tech World',
-              price: 79.99,
-              originalPrice: 99.99,
-              discount: 20,
-              image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
-              inStock: true
-            },
-            {
-              id: '4',
-              name: 'Handmade Ceramic Mug Set',
-              vendor: 'Pottery Studio',
-              price: 34.99,
-              originalPrice: 34.99,
-              discount: 0,
-              image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
-              inStock: true
-            }
-          ]
+        const response = await axios.get("http://localhost:5000/api/users/homepage");
+        console.log(response);
 
-          const data2 = [
-            {
-              id: 1,
-              name: "Tech Haven",
-              location: "New York, USA",
-              rating: 4.5,
-              logo: "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg", // Futuristic tech-themed image
-            },
-            {
-              id: 2,
-              name: "Gadget Galaxy",
-              location: "San Francisco, USA",
-              rating: 4.7,
-              logo: "https://images.pexels.com/photos/3568520/pexels-photo-3568520.jpeg", // Modern gadget-themed image
-            },
-            {
-              id: 3,
-              name: "Electro World",
-              location: "London, UK",
-              rating: 4.2,
-              logo: "https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg", // Tech-themed image with circuit boards
-            },
-            {
-              id: 4,
-              name: "Smart Solutions",
-              location: "Berlin, Germany",
-              rating: 4.8,
-              logo: "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg", // Smart device-themed image
-            },
-            {
-              id: 5,
-              name: "Future Tech",
-              location: "Tokyo, Japan",
-              rating: 4.6,
-              logo: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg", // Futuristic tech-themed image
-            },
-            {
-              id: 6,
-              name: "Innovate Inc.",
-              location: "Sydney, Australia",
-              rating: 4.4,
-              logo: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg", // Innovation-themed image
-            },
-            {
-              id: 7,
-              name: "Tech Titans",
-              location: "Toronto, Canada",
-              rating: 4.3,
-              logo: "https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg", // Tech-themed image
-            },
-            {
-              id: 8,
-              name: "Digital Dreams",
-              location: "Paris, France",
-              rating: 4.9,
-              logo: "https://images.pexels.com/photos/3861964/pexels-photo-3861964.jpeg", // Digital-themed image
-            },
-          ];
-       
-          
-          setFeaturedProducts(data)
-        setPopularVendors(data2);
+        // Fetch from backend
+        setFeaturedProducts(response.data.featuredProducts);
+        setPopularVendors(response.data.popularVendors);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -134,46 +48,41 @@ const UserHome = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <section className="text-center text-white py-12 bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg ">
+      <section className="text-center text-white py-12 bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg">
         <h1 className="text-4xl font-bold ">Welcome to UrbanHive</h1>
         <p className="text-lg mt-2">Your one-stop shop for local businesses</p>
-        <div className="mt-6">
-          
-          
-        </div>
       </section>
 
       {loading ? (
         <p className="text-center mt-6">Loading...</p>
       ) : (
         <>
+          {/* Featured Products */}
           <section className="mt-12">
             <h2 className="text-2xl font-bold">Featured Products</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
               {featuredProducts.map((product) => (
-                  <Link to="/vendors">
-              <Card key={product.id} className="p-4 flex flex-col gap-2 h-[400px]">
-              {/* Fixed size image container */}
-              <div className="w-full h-48 overflow-hidden rounded-lg">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <CardContent className="p-2 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-sm text-gray-500">{product.vendor}</p>
-                  <p className="text-xl font-bold mt-1">₹{product.price}</p>
-                </div>
-                <Button className="mt-2 w-full flex items-center gap-2">
-                  <ShoppingCart size={16} /> Add to Cart
-                </Button>
-              </CardContent>
-            </Card>
-            </Link>
+                <Link to={'/vendors'}>
+                  <Card className="p-4 flex flex-col gap-2 h-[400px]">
+                    <div className="w-full h-48 overflow-hidden rounded-lg">
+                      <img
+                        src={`http://localhost:5000${product.image}`}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <CardContent className="p-2 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{product.name}</h3>
+                        <p className="text-sm text-gray-500">{product.vendor}</p>
+                        <p className="text-xl font-bold mt-1">₹{product.price}</p>
+                      </div>
+                      <Button className="mt-2 w-full flex items-center gap-2">
+                        <ShoppingCart size={16} /> Add to Cart
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </section>
@@ -182,19 +91,58 @@ const UserHome = () => {
   <h2 className="text-2xl font-bold">Popular Vendors</h2>
   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
     {popularVendors.map((vendor) => (
-      <div key={vendor.id} className="border p-4 rounded-lg text-center">
-        <img 
-          src={vendor.logo} 
-          alt={`${vendor.name} logo`} 
-          className="w-24 h-24 object-contain mx-auto" 
-        />
-        <h3 className="mt-2 font-semibold">{vendor.name}</h3>
-        <p className="text-gray-600">{vendor.location}</p>
-        <div className="flex justify-center items-center mt-2">
-          <span className="mr-2 text-yellow-500">{'★'.repeat(Math.floor(vendor.rating))}</span>
-          <span className="text-gray-600">({vendor.rating})</span>
+      <Card key={vendor.id} className="p-4 flex flex-col gap-2 h-[300px]">
+        <div className="w-full h-32 overflow-hidden rounded-lg">
+          <img
+            src={vendor.logo || categoryDefaultImages[vendor.category] || "https://via.placeholder.com/150"}
+            alt={`${vendor.name} logo`}
+            className="w-full h-full object-cover"
+          />
         </div>
-      </div>
+        <CardContent className="p-2 flex-1 flex flex-col justify-between">
+          <div>
+            <h3 className="font-semibold text-lg">{vendor.name}</h3>
+            <p className="text-sm text-gray-500">{vendor.address}</p>
+
+            <div className="flex justify-center items-center mt-2">
+              {/* Render 5 stars with possible half stars */}
+              {Array.from({ length: 5 }, (_, index) => {
+                const ratingFloor = Math.floor(vendor.averageRating);
+                const ratingDecimal = vendor.averageRating - ratingFloor;
+
+                // Full star
+                if (index < ratingFloor) {
+                  return (
+                    <span key={index} className="mr-1 text-yellow-500">
+                      <FaStar />
+                    </span>
+                  );
+                }
+
+                // Half star
+                if (index === ratingFloor && ratingDecimal >= 0.5) {
+                  return (
+                    <span key={index} className="mr-1 text-yellow-500">
+                      <FaStarHalfAlt />
+                    </span>
+                  );
+                }
+
+                // Empty star
+                return (
+                  <span key={index} className="mr-1 text-gray-300">
+                    <FaRegStar />
+                  </span>
+                );
+              })}
+              <span className="text-gray-600 ml-2">({vendor.averageRating.toFixed(1)})</span>
+            </div>
+          </div>
+          <Link to={'/vendors'}>
+            <Button className="mt-2 w-full">Visit Store</Button>
+          </Link>
+        </CardContent>
+      </Card>
     ))}
   </div>
 </section>
