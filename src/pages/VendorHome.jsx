@@ -72,6 +72,14 @@ const VendorHome = () => {
           Add New Product
         </Link>
 
+        <Link
+          to="/vendor/add-product"
+          className="mt-6 inline-block bg-white text-blue-600 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+        >
+          update product
+        </Link>
+
+
 
         <Link
           to="/vendor/orders"

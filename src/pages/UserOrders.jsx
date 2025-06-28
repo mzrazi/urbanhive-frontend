@@ -134,7 +134,7 @@ const UserOrders = () => {
 
                         {/* View Product Button */}
                         <a
-                          href={`/product/${product.productId._id}`}
+                          href={`/view-product/${product.productId._id}`}
                           className="text-blue-600 hover:underline text-sm"
                         >
                           View Product
@@ -158,12 +158,14 @@ const UserOrders = () => {
               </div> */}
 
               {/* Rating Section */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Your Rating
-                </h3>
-                <Rating rating={order.rating} orderId={order._id} />
-              </div>
+              {order.orderStatus === "Delivered" && (
+  <div className="mt-6">
+    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+      Your Rating
+    </h3>
+    <Rating rating={order.rating} orderId={order._id} />
+  </div>
+)}
             </div>
           ))}
         </div>

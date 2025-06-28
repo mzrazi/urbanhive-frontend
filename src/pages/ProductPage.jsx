@@ -4,8 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Search } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams ,useNavigate} from "react-router-dom";
 import { useToast } from '../hooks/use-toast'
+
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -15,6 +16,7 @@ export default function ProductsPage() {
   const { vendorId } = useParams();
   const [cart, setCart] = useState([]);
   const { toast } = useToast()
+   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -157,7 +159,7 @@ export default function ProductsPage() {
         {!loading &&
           !error &&
           filteredProducts.map((product) => (
-            <Card key={product._id} className="p-4 flex flex-col gap-2">
+            <Card key={product._id} className="p-4 flex flex-col gap-2"  onClick={() => navigate(`/view-product/${product._id}`)}>
               <img
                 src={
                   product.image.startsWith("http")
@@ -169,11 +171,14 @@ export default function ProductsPage() {
               />
               <CardContent className="p-2">
                 <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-sm text-gray-500">{product.vendor}</p>
+                <p className="text-sm text-gray-500">{product.category}</p>
                 <p className="text-xl font-bold mt-1">₹{product.price}</p>
                 <Button
                   className="mt-2 w-full flex items-center gap-2"
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering card click event
+                    handleAddToCart(product);
+                  }}
                 >
                   <ShoppingCart size={16} /> Add to Cart
                 </Button>

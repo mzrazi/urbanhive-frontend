@@ -85,7 +85,9 @@ const EditProfile = () => {
   if (!user) return <p>Loading...</p>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="flex justify-center mt-10 px-4">
+    <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+  
       <h2 className="text-xl font-bold">Edit Profile</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
@@ -160,6 +162,7 @@ const EditProfile = () => {
           )}
         </Button>
       </form>
+    </div>
     </div>
   );
 };

@@ -130,7 +130,7 @@ const LandingPage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 text-white">
+      <section className=" bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>

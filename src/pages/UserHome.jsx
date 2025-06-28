@@ -37,6 +37,7 @@ const UserHome = () => {
         // Fetch from backend
         setFeaturedProducts(response.data.featuredProducts);
         setPopularVendors(response.data.popularVendors);
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -74,7 +75,7 @@ const UserHome = () => {
                     <CardContent className="p-2 flex-1 flex flex-col justify-between">
                       <div>
                         <h3 className="font-semibold text-lg">{product.name}</h3>
-                        <p className="text-sm text-gray-500">{product.vendor}</p>
+                        <p className="text-sm text-gray-500">{product.vendor.storeName}</p>
                         <p className="text-xl font-bold mt-1">₹{product.price}</p>
                       </div>
                       <Button className="mt-2 w-full flex items-center gap-2">

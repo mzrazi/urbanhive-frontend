@@ -64,13 +64,14 @@ const Navbar = () => {
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
+                   {isAuthenticated ?
                   <NavigationMenuItem>
                     <Link to={getOrdersLink()}>
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         orders
                       </NavigationMenuLink>
                     </Link>
-                  </NavigationMenuItem>
+                  </NavigationMenuItem>:null}
                   {/* <NavigationMenuItem>
                     <Link to="/vendors">
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>

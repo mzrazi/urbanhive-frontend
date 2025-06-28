@@ -27,7 +27,6 @@ const VendorRegistration = () => {
 
   // Predefined categories
   const categories = [
-    "Clothing",
     "Grocery",
     "Sports Goods",
     "Furniture",

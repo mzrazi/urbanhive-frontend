@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useToast } from '../hooks/use-toast'
-
-
+import { useToast } from "../hooks/use-toast";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -14,8 +11,7 @@ const CartPage = () => {
   const [discount, setDiscount] = useState(0);
   const [grandTotal, setGrandTotal] = useState(0);
   const navigate = useNavigate();
-  const { toast } = useToast()
-
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchCartDetails();
@@ -29,35 +25,33 @@ const CartPage = () => {
       const user = JSON.parse(userData);
       if (!user.id) return console.warn("Invalid user data");
 
-      // Get user's current location
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
+      // Wrap geolocation in a promise
+      const getPosition = () =>
+        new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject)
+        );
 
-          try {
-            const { data } = await axios.post(
-              "http://localhost:5000/api/users/cart/details",
-              { userid: user.id, lat, lng }
-            );
+      try {
+        const position = await getPosition();
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-            setCartItems(data.cart);
-            setSubtotal(data.subtotal);
-            setDiscount(data.discount);
-            setDeliveryCharge(data.deliveryCharge);
-            setGrandTotal(data.grandTotal);
-          } catch (error) {
-            console.error("Error fetching cart details:", error);
-          } finally {
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error("Error fetching location:", error);
-          // If location fetching fails, still fetch cart data without location
-          fetchCartWithoutLocation(user.id);
-        }
-      );
+        const { data } = await axios.post(
+          "http://localhost:5000/api/users/cart/details",
+          { userid: user.id, lat, lng }
+        );
+
+        setCartItems(data.cart);
+        setSubtotal(data.subtotal);
+        setDiscount(data.discount);
+        setDeliveryCharge(data.deliveryCharge);
+        setGrandTotal(data.grandTotal);
+      } catch (geoError) {
+        console.warn("Location denied or error, falling back");
+        await fetchCartWithoutLocation(user.id);
+      } finally {
+        setLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching cart:", error);
       setLoading(false);
@@ -74,8 +68,11 @@ const CartPage = () => {
       setGrandTotal(data.grandTotal);
     } catch (error) {
       console.error("Error fetching cart without location:", error);
-    } finally {
-      setLoading(false);
+      // toast({
+      //   title: "Cart fetch failed",
+      //   description: "Unable to fetch cart. Please try again.",
+      //   variant: "destructive",
+      // });
     }
   };
 
@@ -132,20 +129,15 @@ const CartPage = () => {
       console.error("Error clearing cart:", error);
     }
   };
-  
 
   const handleSubmit = async () => {
-    
-  
     try {
-      // Fetch user data from localStorage
       const userData = localStorage.getItem("urbanhive_user");
       if (!userData) return console.warn("User not logged in");
-  
+
       const user = JSON.parse(userData);
       if (!user.id) return console.warn("Invalid user data");
-  
-      // Prepare order details
+
       const orderData = {
         userId: user.id,
         vendorId: cartItems[0]?.product.vendor,
@@ -155,12 +147,10 @@ const CartPage = () => {
         })),
         totalAmount: grandTotal,
       };
-  
-      // Create Razorpay order
+
       const response = await axios.post("http://localhost:5000/api/users/create-order", orderData);
       const { razorpayOrderId, razorpayPaymentKey } = response.data;
-  
-      // Razorpay payment options
+
       const options = {
         key: razorpayPaymentKey,
         amount: grandTotal * 100,
@@ -171,24 +161,18 @@ const CartPage = () => {
         image: "https://example.com/logo.png",
         handler: async function (response) {
           try {
-         
             if (!response.razorpay_payment_id) {
               console.warn("Payment failed, order not saved.");
               return;
             }
-  
-            // Save order after successful payment
+
             const paymentData = {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             };
-  
+
             await axios.post("http://localhost:5000/api/users/save-order", paymentData);
-  
-            console.log("Order saved successfully");
-  
-            
             navigate("/order-success");
           } catch (error) {
             console.error("Error saving order:", error);
@@ -208,15 +192,13 @@ const CartPage = () => {
           color: "#F37254",
         },
       };
-  
-      // Open Razorpay payment
+
       const rzp = new Razorpay(options);
       rzp.open();
     } catch (error) {
       console.error("Error during checkout:", error);
     }
   };
-  
 
   return (
     <div className="container mx-auto p-6">
@@ -294,8 +276,8 @@ const CartPage = () => {
                   </div>
                 </div>
               </div>
-              <button onClick={handleSubmit}  className="w-full mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700">
-                proceed to checkout
+              <button onClick={handleSubmit} className="w-full mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700">
+                Proceed to Checkout
               </button>
               <button onClick={handleClearCart} className="w-full mt-4 px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-700">
                 Clear Cart

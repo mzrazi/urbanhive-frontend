@@ -20,6 +20,8 @@ const AddProductPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef(null); // Reference for the file input
+
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target; 
@@ -79,9 +81,7 @@ const AddProductPage = () => {
         toast({
           title: 'product added successfully!!',
         })
-        if (formRef.current) {
-          formRef.current.reset();
-        }
+       
         setFormData({
           name: "",
           price: 0,
@@ -89,6 +89,10 @@ const AddProductPage = () => {
           description: "",
           image: null,
         });
+        
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""; // Manually clear the file input
+  }
         
       } 
     } catch (error) {
@@ -176,6 +180,7 @@ const AddProductPage = () => {
                   type="file"
                   name="image"
                   accept="image/*"
+                  ref={fileInputRef}
                   onChange={handleChange}
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                   required

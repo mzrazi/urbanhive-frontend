@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.name}!`,
+        description: `Welcome back, ${data.user.name}!`,
       })
 
       navigate('/customer') // Navigate to customer dashboard or home
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       // Show success toast
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.name}!`,
+        description: `Welcome back, ${data.user.storeName}!`,
       })
 
       // Navigate to the vendor home page
