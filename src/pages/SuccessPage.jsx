@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const OrderSuccessPage = () => {
+const SuccessPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -18,4 +18,4 @@ const OrderSuccessPage = () => {
   );
 };
 
-export default OrderSuccessPage;
+export default SuccessPage;
