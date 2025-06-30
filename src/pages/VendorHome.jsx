@@ -19,7 +19,7 @@ const VendorHome = () => {
         }
         const vendorId=storedVendor._id
     
-        const res = await axios.get(`http://localhost:5000/api/vendors/products/${vendorId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/products/${vendorId}`);
     
         setVendorProducts(res.data);
       } catch (error) {
@@ -38,7 +38,7 @@ const VendorHome = () => {
   const handleDelete = async (productid) => {
     setLoading(true);  // Show loading indicator
     try {
-      const response = await axios.delete(`http://localhost:5000/api/vendors/delete-product/${productid}`);
+      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/delete-product/${productid}`);
 
       if (response.status === 200) {
         // Product successfully deleted, show success message
@@ -108,7 +108,7 @@ const VendorHome = () => {
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
                   <img
-                    src={`http://localhost:5000${product.image}`}
+                    src={`${import.meta.env.VITE_API_BASE_URL}${product.image}`}
                     alt={product.name}
                     className="w-full h-48 object-cover"
                   />

@@ -21,7 +21,7 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/vendors/products/${vendorId}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/products/${vendorId}`);
         setProducts(response.data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -41,7 +41,7 @@ export default function ProductsPage() {
         
         if (!user.id) return console.warn("Invalid user data");
     
-        const res = await axios.get(`http://localhost:5000/api/users/cart/${user.id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/${user.id}`);
        console.log(res.data)
         setCart(res.data);
       } catch (err) {
@@ -74,7 +74,7 @@ export default function ProductsPage() {
       const user = JSON.parse(userData);
 
      
-      await axios.put("http://localhost:5000/api/users/cart/clear", { userid: user.id });
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/clear`, { userid: user.id });
       setCart([]);
     }
 
@@ -90,7 +90,7 @@ export default function ProductsPage() {
         const user = JSON.parse(userData);
         // Increase quantity if product already exists in cart
         const res = await axios.put(
-          `http://localhost:5000/api/users/cart/update`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/users/cart/update`,
           {userid:user.id,productid:existingProduct.product._id, quantity: existingProduct.quantity + 1 },
        
         );
@@ -106,7 +106,7 @@ export default function ProductsPage() {
         
         // Add new product to cart
         const res = await axios.post(
-          "http://localhost:5000/api/users/cart/add",
+          `${import.meta.env.VITE_API_BASE_URL}/api/users/cart/add`,
           {userid:user.id, productId: product._id, vendorId: product.vendorId, quantity: 1 }
           
         );
@@ -164,10 +164,14 @@ export default function ProductsPage() {
                 src={
                   product.image.startsWith("http")
                     ? product.image
-                    : `http://localhost:5000${product.image}`
+                    : `${import.meta.env.VITE_API_BASE_URL}${product.image}`
                 }
                 alt={product.name}
                 className="rounded-lg h-40 object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/noimage.png";
+                }}
               />
               <CardContent className="p-2">
                 <h3 className="font-semibold text-lg">{product.name}</h3>

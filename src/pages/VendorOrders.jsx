@@ -19,7 +19,7 @@ const VendorOrders = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/vendors/get-orders/${vendorId}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/vendors/get-orders/${vendorId}`
         );
         const data = await response.json();
         console.log(data);

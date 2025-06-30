@@ -37,7 +37,7 @@ const CartPage = () => {
         const lng = position.coords.longitude;
 
         const { data } = await axios.post(
-          "http://localhost:5000/api/users/cart/details",
+          `${import.meta.env.VITE_API_BASE_URL}/api/users/cart/details`,
           { userid: user.id, lat, lng }
         );
 
@@ -60,7 +60,7 @@ const CartPage = () => {
 
   const fetchCartWithoutLocation = async (userid) => {
     try {
-      const { data } = await axios.post("http://localhost:5000/api/users/cart/details", { userid });
+      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/details`, { userid });
       setCartItems(data.cart);
       setSubtotal(data.subtotal);
       setDiscount(data.discount);
@@ -87,7 +87,7 @@ const CartPage = () => {
       if (action === "increase") newQuantity++;
       if (action === "decrease" && newQuantity > 1) newQuantity--;
 
-      await axios.put("http://localhost:5000/api/users/cart/update", {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/update`, {
         userid: user.id,
         productid: productId,
         quantity: newQuantity,
@@ -104,7 +104,7 @@ const CartPage = () => {
       const userData = localStorage.getItem("urbanhive_user");
       const user = JSON.parse(userData);
 
-      await axios.delete("http://localhost:5000/api/users/cart/remove", {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/remove`, {
         data: { userid: user.id, productId },
       });
 
@@ -119,7 +119,7 @@ const CartPage = () => {
       const userData = localStorage.getItem("urbanhive_user");
       const user = JSON.parse(userData);
 
-      await axios.put("http://localhost:5000/api/users/cart/clear", { userid: user.id });
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/clear`, { userid: user.id });
       setCartItems([]);
       setSubtotal(0);
       setDiscount(0);
@@ -148,7 +148,7 @@ const CartPage = () => {
         totalAmount: grandTotal,
       };
 
-      const response = await axios.post("http://localhost:5000/api/users/create-order", orderData);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/create-order`, orderData);
       const { razorpayOrderId, razorpayPaymentKey } = response.data;
 
       const options = {
@@ -172,7 +172,7 @@ const CartPage = () => {
               razorpay_signature: response.razorpay_signature,
             };
 
-            await axios.post("http://localhost:5000/api/users/save-order", paymentData);
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/save-order`, paymentData);
             navigate("/order-success");
           } catch (error) {
             console.error("Error saving order:", error);
@@ -218,7 +218,7 @@ const CartPage = () => {
                 <div key={item.product._id} className="border p-4 rounded-lg flex items-center justify-between">
                   <div className="flex items-center">
                     <img
-                      src={`http://localhost:5000${item.product.image}`}
+                      src={`${import.meta.env.VITE_API_BASE_URL}${item.product.image}`}
                       alt={item.product.name}
                       className="w-20 h-20 object-cover rounded-md"
                     />

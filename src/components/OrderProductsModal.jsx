@@ -13,7 +13,7 @@ const OrderProductsModal = ({ isOpen, onClose, order }) => {
             <li key={index} className="flex items-center space-x-4 border-b pb-2">
               {/* Product Image */}
               <img 
-                src={`http://localhost:5000${item.productId.image}`} 
+                src={`${import.meta.env.VITE_API_BASE_URL}${item.productId.image}`} 
                 alt={item.productId.name} 
                 className="w-12 h-12 object-cover rounded-md"
               />

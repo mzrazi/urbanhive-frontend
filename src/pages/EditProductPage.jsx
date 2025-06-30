@@ -23,7 +23,7 @@ const EditProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/vendors/getproduct/${productId}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/getproduct/${productId}`);
         const product = response.data.product;
 
         setFormData({
@@ -66,7 +66,7 @@ const EditProductPage = () => {
      
       
       const response = await axios.put(
-        `http://localhost:5000/api/vendors/update-product/${productId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/vendors/update-product/${productId}`,
        formData,
       );
 

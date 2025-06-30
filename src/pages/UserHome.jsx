@@ -31,7 +31,7 @@ const UserHome = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/homepage");
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/homepage`);
         console.log(response);
 
         // Fetch from backend
@@ -67,9 +67,13 @@ const UserHome = () => {
                   <Card className="p-4 flex flex-col gap-2 h-[400px]">
                     <div className="w-full h-48 overflow-hidden rounded-lg">
                       <img
-                        src={`http://localhost:5000${product.image}`}
+                        src={`${import.meta.env.VITE_API_BASE_URL}${product.image}`}
                         alt={product.name}
                         className="w-full h-full object-cover"
+                         onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/noimage.png"; // fallback in /public folder
+                              }}
                       />
                     </div>
                     <CardContent className="p-2 flex-1 flex flex-col justify-between">

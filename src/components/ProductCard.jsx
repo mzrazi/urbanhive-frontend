@@ -20,6 +20,10 @@ const ProductCard = ({ product }) => {
           <img 
             src={product.image} 
             alt={product.name} 
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/noimage.png"; // fallback in /public folder
+            }}
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />
           {product.discount > 0 && (

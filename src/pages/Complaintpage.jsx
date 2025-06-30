@@ -32,7 +32,7 @@ const ComplaintPage = () => {
         if (!user.id) return console.warn("Invalid user data");
   
       const response = await axios.post(
-        "http://localhost:5000/api/users/complaint",
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/complaint`,
         { description ,id:user.id}
       );
 

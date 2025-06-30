@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     
       
   
-      const response = await fetch("http://localhost:5000/api/vendors/login", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }) => {
   const registerUser = async (userData) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
@@ -166,7 +166,7 @@ export const AuthProvider = ({ children }) => {
   const registerVendor = async (userData) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/api/vendors/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

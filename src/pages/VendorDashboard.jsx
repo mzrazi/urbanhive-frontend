@@ -46,7 +46,7 @@ const VendorDashboard = () => {
         }
 
         console.log('Fetching data for vendor:', user._id);
-        const response = await axios.get(`http://localhost:5000/api/vendors/dashboard/${user._id}`); // Assuming your API endpoint is this
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/vendors/dashboard/${user._id}`); // Assuming your API endpoint is this
         
         console.log('API Response:', response.data);
         const data = response.data;

@@ -16,7 +16,7 @@ const VendorListingPage = () => {
       
       // Fetch vendors based on coordinates (replace with your API endpoint)
       const response = await axios.get(
-        `http://localhost:5000/api/users/nearby?lat=${coordinates.latitude}&lng=${coordinates.longitude}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/nearby?lat=${coordinates.latitude}&lng=${coordinates.longitude}`
       );
       const vendors = response.data;
               

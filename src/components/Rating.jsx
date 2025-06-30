@@ -12,7 +12,7 @@ const Rating = ({ rating, orderId }) => {
     
     try {
       // Call API to update the rating
-      const response = await axios.put("http://localhost:5000/api/users/order-rating", {
+      const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/order-rating`, {
         orderId: orderId,
         rating: newRating,
       });

@@ -23,7 +23,7 @@ const EditProfile = () => {
       if (!userData) return;
 
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/profile/${userData.id}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile/${userData.id}`);
         setUser(response.data);
         setFormData({
          
@@ -66,7 +66,7 @@ const EditProfile = () => {
     setIsLoading(true);
 
     try {
-      await axios.put("http://localhost:5000/api/users/profile/update",{
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile/update`,{
         userid: user._id,  // Send the user ID (if necessary)
         name: formData.name,
         email: formData.email,

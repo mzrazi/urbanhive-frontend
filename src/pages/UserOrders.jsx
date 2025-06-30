@@ -21,7 +21,7 @@ const UserOrders = () => {
     
         const user = JSON.parse(userData);
         if (!user.id) return console.warn("Invalid user data");
-        const res = await axios.get(`http://localhost:5000/api/users/order-history/${user.id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/order-history/${user.id}`);
 
         console.log(res.data);
         
@@ -118,7 +118,7 @@ const UserOrders = () => {
                       <div key={product.productId._id} className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg">
                         {/* Product Image */}
                         <img
-                          src={`http://localhost:5000${product.productId.image}` || "https://via.placeholder.com/100"}
+                          src={`${import.meta.env.VITE_API_BASE_URL}${product.productId.image}` || "https://via.placeholder.com/100"}
                           alt={product.productId.name || "Product Image"} // Avoid undefined errors
                           className="w-16 h-16 object-cover rounded"
                         />
