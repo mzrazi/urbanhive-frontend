@@ -42,11 +42,12 @@ import VendorListingPage from './pages/VendorListingPage'
 import AddProductPage from './pages/AddProductPage'
 import VendorDashboard from './pages/VendorDashboard'
 import EditProductPage from './pages/EditProductPage'
-import OrderSuccessPage from './pages/SuccesPage'
+
 import UserOrders from './pages/UserOrders'
 import EditProfile from './pages/EditProfile'
 import ViewProduct from './pages/ViewProduct'
 import ComplaintPage from './pages/Complaintpage'
+import SuccessPage from './pages/SuccessPage'
 
 function App() {
   const { isLoading } = useAuth()
@@ -81,7 +82,7 @@ function App() {
         <Route path="/vendors" element={<VendorListingPage />} />
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />
         <Route path="/vendor/edit-product/:productId" element={<EditProductPage />} /> 
-        <Route path="/order-success" element={<OrderSuccessPage />} />
+        <Route path="/order-success" element={<SuccessPage />} />
         
         
 
