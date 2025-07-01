@@ -158,70 +158,78 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile menu */}
-      <div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <Link
-            to="/"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Home
-          </Link>
-          <Link
-            to="/products"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Products
-          </Link>
-          <Link
-            to="/vendors"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Vendors
-          </Link>
-          
-          {isAuthenticated ? (
-            <>
-              <Link
-                to={getDashboardLink()}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <button
-                className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => {
-                  logout()
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Customer Login
-              </Link>
-              <Link
-                to="/vendor/login"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Vendor Login
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
+    {/* Mobile menu */}
+<div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+  <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+    <Link
+      to={getHomeLink()}
+      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+      onClick={() => setMobileMenuOpen(false)}
+    >
+      Home
+    </Link>
+
+    {isAuthenticated && (
+      <Link
+        to={getOrdersLink()}
+        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        Orders
+      </Link>
+    )}
+
+    {isAuthenticated && userType === 'vendor' && (
+      <Link
+        to={getDashboardLink()}
+        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        Dashboard
+      </Link>
+    )}
+
+    {isAuthenticated && userType === 'customer' && (
+      <Link
+        to="/cart"
+        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        Cart ({totalItems})
+      </Link>
+    )}
+
+    {isAuthenticated ? (
+      <button
+        className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+        onClick={() => {
+          logout()
+          setMobileMenuOpen(false)
+        }}
+      >
+        Logout
+      </button>
+    ) : (
+      <>
+        <Link
+          to="/login"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Customer Login
+        </Link>
+        <Link
+          to="/vendor/login"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Vendor Login
+        </Link>
+      </>
+    )}
+  </div>
+</div>
+
     </header>
   )
 }
