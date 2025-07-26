@@ -14,7 +14,7 @@ const LandingPage = () => {
     // Fetch featured products
     const fetchFeaturedProducts = async () => {
       try {
-        // In a real app, this would be an API call
+       
         // const response = await fetch('https://api.example.com/products/featured')
         // const data = await response.json()
         
@@ -142,12 +142,12 @@ const LandingPage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/register">
-                  <Button size="lg" className="bg-white text-urbanhive-800 hover:bg-urbanhive-100">
+                  <Button size="lg" className="bg-white text-urbanhive-800 transform transition duration-300 hover:scale-110 hover:bg-white ">
                     Shop Now
                   </Button>
                 </Link>
                 <Link to="/vendor/register">
-                  <Button size="lg" variant="outline" className="bg-white text-urbanhive-800 hover:bg-urbanhive-100">
+                  <Button size="lg" variant="outline" className="bg-white text-urbanhive-800 transform transition duration-300 hover:scale-110 hover:bg-white ">
                     Become a Vendor
                   </Button>
                 </Link>
@@ -155,9 +155,9 @@ const LandingPage = () => {
             </div>
             <div className="hidden md:block">
               <img 
-                src="https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+                src="/urbanhiveci.jpeg" 
                 alt="UrbanHive Delivery" 
-                className="rounded-lg shadow-xl"
+                className="rounded-3xl shadow-2xl shadow-black transform transition duration-300 hover:rotate-1 hover:bg-white"
               />
             </div>
           </div>
@@ -179,8 +179,8 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Why Choose UrbanHive?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-urbanhive-100 rounded-full mb-4">
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center group transform transition duration-300 hover:scale-110">
+              <div className="inline-flex items-center justify-center p-3 bg-urbanhive-100 rounded-full mb-4 hover:scale-150 ">
                 <ShoppingBag className="h-8 w-8 text-urbanhive-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Shop Local</h3>
@@ -188,7 +188,7 @@ const LandingPage = () => {
                 Support your local businesses and discover unique products from vendors in your community.
               </p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center transform transition duration-300 hover:scale-110">
               <div className="inline-flex items-center justify-center p-3 bg-urbanhive-100 rounded-full mb-4">
                 <Truck className="h-8 w-8 text-urbanhive-600" />
               </div>
@@ -197,7 +197,7 @@ const LandingPage = () => {
                 Get all your items delivered together, quickly and efficiently to your doorstep.
               </p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center transform transition duration-300 hover:scale-110">
               <div className="inline-flex items-center justify-center p-3 bg-urbanhive-100 rounded-full mb-4">
                 <Shield className="h-8 w-8 text-urbanhive-600" />
               </div>
@@ -275,7 +275,7 @@ const LandingPage = () => {
             Join our community of vendors and reach more customers in your area.
           </p>
           <Link to="/vendor/register">
-            <Button size="lg" className="bg-urbanhive-800 text-white hover:bg-white hover:text-urbanhive-800">
+            <Button size="lg" className="bg-urbanhive-800 text-white  transform transition duration-300 hover:scale-110">
               Become a Vendor Today
             </Button>
           </Link>
