@@ -27,7 +27,7 @@ git clone https://github.com/yourusername/urbanhive-frontend.git
 cd urbanhive-frontend
 npm install
 npm run dev
-
+```
 
 ## 📂 Folder Structure
 src/
