@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
       })
 
       // Navigate to the vendor home page
-      navigate("/vendor/home");
+      navigate("/vendor");
   
       return {
         success: true,

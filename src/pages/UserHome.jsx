@@ -63,7 +63,7 @@ const UserHome = () => {
             <h2 className="text-2xl font-bold">Featured Products</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
               {featuredProducts.map((product) => (
-                <Link to={'/vendors'}>
+                <Link to={'/customer/vendors'}>
                   <Card className="p-4 flex flex-col gap-2 h-[400px]">
                     <div className="w-full h-48 overflow-hidden rounded-lg">
                       <img
@@ -143,7 +143,7 @@ const UserHome = () => {
               <span className="text-gray-600 ml-2">({vendor.averageRating.toFixed(1)})</span>
             </div>
           </div>
-          <Link to={'/vendors'}>
+          <Link to={'customer/vendors'}>
             <Button className="mt-2 w-full">Visit Store</Button>
           </Link>
         </CardContent>

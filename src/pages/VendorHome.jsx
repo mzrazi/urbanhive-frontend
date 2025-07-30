@@ -59,7 +59,7 @@ const VendorHome = () => {
   return (
     <div className="container mx-auto p-6">
       {/* Hero Section */}
-      <section className="text-center py-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg">
+      <section className="text-center py-12  bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold text-white">Welcome to UrbanHive</h1>
         <p className="text-lg text-gray-200 mt-2">
           Manage and showcase your products with ease
@@ -67,14 +67,14 @@ const VendorHome = () => {
         <div className="flex space-x-6 justify-center">
         <Link
           to="/vendor/add-product"
-          className="mt-6 inline-block bg-white text-blue-600 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+          className="mt-6 inline-block bg-white text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold transition duration-300"
         >
           Add New Product
         </Link>
 
         <Link
           to="/vendor/add-product"
-          className="mt-6 inline-block bg-white text-blue-600 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+          className="mt-6 inline-block bg-white text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold transition duration-300"
         >
           update product
         </Link>
@@ -83,7 +83,7 @@ const VendorHome = () => {
 
         <Link
           to="/vendor/orders"
-          className="mt-6 inline-block bg-white text-blue-600 px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+          className="mt-6 inline-block bg-white text-urbanhive-800 hover:bg-urbanhive-100 px-6 py-2 rounded-full font-semibold  transition duration-300"
         >
          orders recieved
         </Link>

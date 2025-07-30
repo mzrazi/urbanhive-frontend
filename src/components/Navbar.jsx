@@ -26,7 +26,7 @@ const Navbar = () => {
  
     
     if (!isAuthenticated) return '/login'
-    return userType === 'vendor' ? '/vendor/dashboard' : '/customer'
+    return userType === 'vendor' ? '/vendor' : '/customer'
   }
   const getHomeLink = () => {
    
@@ -34,7 +34,7 @@ const Navbar = () => {
     if (!isAuthenticated) return '/'; // Default landing page for unauthenticated users
     
     
-    return userType === 'vendor' ? '/vendor/home' : '/home'; // Specific home pages for vendors and customers
+    return userType === 'vendor' ? '/vendor' : '/customer'; // Specific home pages for vendors and customers
   };
   const getOrdersLink = () => {
    
@@ -42,13 +42,13 @@ const Navbar = () => {
     if (!isAuthenticated) return '/'; // Default landing page for unauthenticated users
     
     
-    return userType === 'vendor' ? '/vendor/orders' : '/orders'; // Specific home pages for vendors and customers
+    return userType === 'vendor' ? '/vendor/orders' : '/customer/orders'; // Specific home pages for vendors and customers
   };
   
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-white shadow-sm border-b  border-urbanhive-200">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8  ">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to={getHomeLink()} className="flex-shrink-0 flex items-center">
@@ -89,7 +89,7 @@ const Navbar = () => {
     <>
       {/* Show cart icon only for customers */}
       {userType === 'customer' && (
-        <Link to="/cart" className="relative mr-4">
+        <Link to="/customer/cart" className="relative mr-4">
           <ShoppingCart className="h-6 w-6 text-gray-600" />
           {totalItems > 0 && (
             <span className="absolute -top-2 -right-2 bg-urbanhive-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -133,7 +133,7 @@ const Navbar = () => {
           
           <div className="flex items-center md:hidden">
             {isAuthenticated && userType === 'customer' && (
-              <Link to="/cart" className="relative mr-4">
+              <Link to="/customer/cart" className="relative mr-4">
                 <ShoppingCart className="h-6 w-6 text-gray-600" />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-urbanhive-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

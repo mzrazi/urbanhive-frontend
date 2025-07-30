@@ -15,7 +15,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
-      <Link to={`/product/${product.id}`}>
+      <Link to={`customer/product/${product.id}`}>
         <div className="aspect-square relative overflow-hidden">
           <img 
             src={product.image} 

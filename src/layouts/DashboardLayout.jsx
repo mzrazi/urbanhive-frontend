@@ -19,7 +19,7 @@ const DashboardLayout = ({ userType }) => {
 
   const vendorLinks = [
     { name: 'Dashboard', href: '/vendor', icon: Home },
-    { name: 'Products', href: '/vendor/products', icon: Package },
+    { name: 'Products', href: '/vendor/home', icon: Package },
     { name: 'Orders', href: '/vendor/orders', icon: Truck },
     { name: 'Profile', href: '/vendor/profile', icon: User },
   ]

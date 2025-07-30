@@ -99,6 +99,10 @@ export default function ProductsPage() {
             item.product._id === existingProduct.product._id ? { ...item, quantity: item.quantity + 1 } : item
           )
         );
+         toast({
+    title: 'Quantity increased',
+    description: 'Item already in cart, increased quantity',
+  });
       } else {
 
         const userData = localStorage.getItem("urbanhive_user");

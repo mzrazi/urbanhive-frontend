@@ -156,7 +156,7 @@ const VendorListingPage = () => {
                   </div>
 
                    </div>
-                   <Link to={`/products/${vendor._id}`}>
+                   <Link to={`/customer/products/${vendor._id}`}>
                      <Button className="mt-2 w-full">Visit Store</Button>
                    </Link>
                  </CardContent>

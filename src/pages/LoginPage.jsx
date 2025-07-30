@@ -23,7 +23,7 @@ const LoginPage = () => {
     try {
       const success = await loginUser(email, password) // Directly pass email and password to the login function
       if (success) {
-        navigate('/home') // Redirect on successful login
+        navigate('/customer') // Redirect on successful login
       } else {
         setErrors({ general: 'Invalid email or password' }) // Handle invalid login
       }

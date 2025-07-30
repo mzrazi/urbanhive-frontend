@@ -4,6 +4,7 @@ import { CheckCircle, Circle, Clock, XCircle } from "lucide-react";
 import OrderTimeline from "../components/OrderTimeline"; // Import the OrderTimeline component
 import OrderStatusBadge from "../components/OrderStatusBadge"; // Import the OrderStatusBadge component
 import Rating from "../components/Rating"; // Import Rating Component
+import { Link } from "react-router-dom";
 
 const UserOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -133,12 +134,13 @@ const UserOrders = () => {
                         </div>
 
                         {/* View Product Button */}
-                        <a
-                          href={`/view-product/${product.productId._id}`}
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          View Product
-                        </a>
+                        
+                      <Link
+                        to={`/customer/view-product/${product.productId._id}`}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        View Product
+                      </Link>
                       </div>
                     );
                   })}

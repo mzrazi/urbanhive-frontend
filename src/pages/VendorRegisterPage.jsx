@@ -87,11 +87,11 @@ const VendorRegistration = () => {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-md p-6 shadow-lg">
+      <Card className="w-full max-w-md p-4 shadow-lg">
         <CardContent>
-          <h2 className="text-xl font-semibold text-center mb-4">Vendor Registration</h2>
+          <h2 className="text-xl font-semibold text-center mb-2">Vendor Registration</h2>
           {error && <p className="text-red-500 text-center">{error}</p>}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-2">
             {Object.keys(formData).map((field) =>
               field !== "latitude" && field !== "longitude" && field !== "category" ? (
                 <div key={field}>
