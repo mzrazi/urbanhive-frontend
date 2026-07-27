@@ -138,6 +138,18 @@ const CartPage = () => {
       const user = JSON.parse(userData);
       if (!user.id) return console.warn("Invalid user data");
 
+      let lat;
+      let lng;
+      try {
+        const position = await new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject)
+        );
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      } catch (locationError) {
+        console.warn("Location unavailable during checkout; using the standard delivery charge.");
+      }
+
       const orderData = {
         userId: user.id,
         vendorId: cartItems[0]?.product.vendor,
@@ -146,14 +158,16 @@ const CartPage = () => {
           quantity: item.quantity,
         })),
         totalAmount: grandTotal,
+        lat,
+        lng,
       };
 
       const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/create-order`, orderData);
-      const { razorpayOrderId, razorpayPaymentKey } = response.data;
+      const { razorpayOrderId, razorpayPaymentKey, totalAmount } = response.data;
 
       const options = {
         key: razorpayPaymentKey,
-        amount: grandTotal * 100,
+        amount: totalAmount * 100,
         currency: "INR",
         order_id: razorpayOrderId,
         name: "UrbanHive Store",

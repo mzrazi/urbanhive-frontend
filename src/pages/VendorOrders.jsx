@@ -16,10 +16,16 @@ const VendorOrders = () => {
 
       const vendorData = JSON.parse(storedUser);
       const vendorId = vendorData._id; // Ensure this matches your backend field
+      const token = localStorage.getItem("urbanhive_token");
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/vendors/get-orders/${vendorId}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/vendors/get-orders/${vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
         console.log(data);

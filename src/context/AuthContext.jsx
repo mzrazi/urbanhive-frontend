@@ -1,9 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../hooks/use-toast'
+import axios from 'axios'
 
 
 const AuthContext = createContext()
+
+const authTokenKey = 'urbanhive_token'
+const setApiToken = (token) => {
+  if (token) {
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`
+  } else {
+    delete axios.defaults.headers.common.Authorization
+  }
+}
 
 export const useAuth = () => useContext(AuthContext)
 
@@ -19,7 +29,13 @@ export const AuthProvider = ({ children }) => {
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
-        setUser(userData); // This should update the user state with valid data
+        const token = localStorage.getItem(authTokenKey);
+        if (token) {
+          setApiToken(token);
+          setUser(userData);
+        } else {
+          localStorage.removeItem('urbanhive_user');
+        }
       } catch (error) {
         console.error('Error parsing stored user data:', error); // Log any errors in parsing
         setUser(null); // Optionally, set user to null if the data is corrupted
@@ -45,6 +61,8 @@ export const AuthProvider = ({ children }) => {
 
       setUser(data.user)
       localStorage.setItem('urbanhive_user', JSON.stringify(data.user))
+      localStorage.setItem(authTokenKey, data.token)
+      setApiToken(data.token)
 
       toast({
         title: 'Login successful',
@@ -93,6 +111,8 @@ export const AuthProvider = ({ children }) => {
       // Save the user data and token in localStorage
       setUser(data.user);
       localStorage.setItem("urbanhive_user", JSON.stringify(data.user));
+      localStorage.setItem(authTokenKey, data.token);
+      setApiToken(data.token);
   
       // Show success toast
       toast({
@@ -203,6 +223,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null)
     localStorage.removeItem('urbanhive_user')
+    localStorage.removeItem(authTokenKey)
+    setApiToken(null)
     toast({
       title: 'Logged out',
       description: 'You have been successfully logged out',
