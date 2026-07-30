@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useToast } from '../hooks/use-toast'
+import { useAuth } from './AuthContext'
+import axios from 'axios'
 
 const CartContext = createContext()
 
@@ -10,14 +12,21 @@ export const CartProvider = ({ children }) => {
   const [totalItems, setTotalItems] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
   const { toast } = useToast()
+  const { user, userType } = useAuth()
+
+  const refreshCart = async () => {
+    if (!user?.id || userType !== 'customer') return setCart([])
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/${user.id}`)
+      setCart(data.map((item) => ({ id: item.product?._id, name: item.product?.name, price: item.product?.price, quantity: item.quantity })))
+    } catch {
+      setCart([])
+    }
+  }
 
   useEffect(() => {
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem('urbanhive_cart')
-    if (savedCart) {
-      setCart(JSON.parse(savedCart))
-    }
-  }, [])
+    refreshCart()
+  }, [user?.id, userType])
 
   useEffect(() => {
     // Update totals when cart changes
@@ -27,8 +36,6 @@ export const CartProvider = ({ children }) => {
     setTotalItems(items)
     setTotalPrice(price)
     
-    // Save to localStorage
-    localStorage.setItem('urbanhive_cart', JSON.stringify(cart))
   }, [cart])
 
   const addToCart = (product, quantity = 1) => {
@@ -106,7 +113,8 @@ export const CartProvider = ({ children }) => {
     addToCart,
     updateQuantity,
     removeFromCart,
-    clearCart
+    clearCart,
+    refreshCart
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

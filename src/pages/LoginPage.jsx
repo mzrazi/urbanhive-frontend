@@ -11,12 +11,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState(null)
+  const [touched, setTouched] = useState({})
 
   const { loginUser } = useAuth() // Access the login function for customers
   const navigate = useNavigate()
+  const validationErrors = {
+    ...(email && !/^\S+@\S+\.\S+$/.test(email) ? { email: 'Enter a valid email address.' } : {}),
+    ...(password && password.length < 6 ? { password: 'Password must be at least 6 characters.' } : {}),
+  }
+  const validate = () => {
+    const nextErrors = {}
+    if (!email) nextErrors.email = 'Email is required.'
+    else if (validationErrors.email) nextErrors.email = validationErrors.email
+    if (!password) nextErrors.password = 'Password is required.'
+    else if (validationErrors.password) nextErrors.password = validationErrors.password
+    return nextErrors
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const nextErrors = validate()
+    setTouched({ email: true, password: true })
+    if (Object.keys(nextErrors).length) return setErrors(nextErrors)
     setIsLoading(true)
     const formData = { email, password }
 
@@ -35,9 +51,10 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-md mx-auto">
-        <Card>
+    <div className="min-h-screen bg-[#faf8f3] px-4 py-10 sm:py-16">
+      <div className="mx-auto max-w-md">
+        <Card className="overflow-hidden rounded-[26px] border-[#e7e4dd] shadow-xl shadow-[#352c1d]/5">
+          <div className="bg-[#f4eadb] px-7 py-7"><p className="text-xs font-bold uppercase tracking-[.15em] text-[#2f7d4a]">Shop local, live better</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em]">Welcome back.</h1><p className="mt-2 text-sm text-[#697168]">Your neighbourhood favourites are waiting.</p></div>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Customer Login</CardTitle>
             <CardDescription>
@@ -56,9 +73,10 @@ const LoginPage = () => {
                   type="email"
                   placeholder="name@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  onChange={(e) => { setEmail(e.target.value); setErrors((current) => ({ ...current, general: '' })) }}
+                  onBlur={() => setTouched((fields) => ({ ...fields, email: true }))}
                 />
+                {touched.email && <p className="text-xs font-medium text-[#b64437]">{!email ? 'Email is required.' : validationErrors.email}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -72,11 +90,12 @@ const LoginPage = () => {
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  onChange={(e) => { setPassword(e.target.value); setErrors((current) => ({ ...current, general: '' })) }}
+                  onBlur={() => setTouched((fields) => ({ ...fields, password: true }))}
                 />
+                {touched.password && <p className="text-xs font-medium text-[#b64437]">{!password ? 'Password is required.' : validationErrors.password}</p>}
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center justify-center">
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

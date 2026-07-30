@@ -1,309 +1,40 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useToast } from "../hooks/use-toast";
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Check, ChevronLeft, LockKeyhole, Minus, Plus, ShoppingBag, Trash2, Truck } from 'lucide-react'
+import { Button } from '../components/ui/button'
+import { useToast } from '../hooks/use-toast'
+import { resolveProductImage } from '../lib/images'
+import { useCart } from '../context/CartContext'
+import { getDeliveryLocation } from '../lib/deliveryLocation'
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [subtotal, setSubtotal] = useState(0);
-  const [deliveryCharge, setDeliveryCharge] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [grandTotal, setGrandTotal] = useState(0);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [cartItems, setCartItems] = useState([])
+  const [totals, setTotals] = useState({ subtotal: 0, deliveryCharge: 0, discount: 0, grandTotal: 0 })
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const { refreshCart } = useCart()
 
-  useEffect(() => {
-    fetchCartDetails();
-  }, []);
-
-  const fetchCartDetails = async () => {
+  const user = () => JSON.parse(localStorage.getItem('urbanhive_user'))
+  const loadCart = async () => {
     try {
-      const userData = localStorage.getItem("urbanhive_user");
-      if (!userData) return console.warn("User not logged in");
+      const currentUser = user()
+      let { lat, lng } = getDeliveryLocation()
+      try { const position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject)); lat = position.coords.latitude; lng = position.coords.longitude } catch { /* standard delivery fallback */ }
+      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/details`, { userid: currentUser?.id, lat, lng })
+      setCartItems(data.cart || [])
+      setTotals(data)
+    } catch { toast({ title: 'Could not load cart', variant: 'destructive' }) } finally { setLoading(false) }
+  }
+  useEffect(() => { loadCart() }, [])
+  const updateQuantity = async (item, change) => { const quantity = item.quantity + change; if (quantity < 1) return; await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/update`, { userid: user()?.id, productid: item.product._id, quantity }); await refreshCart(); loadCart() }
+  const removeItem = async (productId) => { await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/remove`, { data: { userid: user()?.id, productId } }); await refreshCart(); toast({ title: 'Removed from cart' }); loadCart() }
+  const checkout = async () => { try { const currentUser = user(); let { lat, lng } = getDeliveryLocation(); try { const position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject)); lat = position.coords.latitude; lng = position.coords.longitude } catch { /* Uses the saved delivery location or the standard fallback. */ }; const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/create-order`, { lat, lng }); const rzp = new Razorpay({ key: data.razorpayPaymentKey, amount: data.totalAmount * 100, currency: 'INR', order_id: data.razorpayOrderId, name: 'UrbanHive Store', handler: async (payment) => { await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/save-order`, payment); await refreshCart(); navigate('/customer/order-success') }, prefill: { name: currentUser?.name, email: currentUser?.email } }); rzp.open() } catch { toast({ title: 'Checkout could not start', variant: 'destructive' }) } }
 
-      const user = JSON.parse(userData);
-      if (!user.id) return console.warn("Invalid user data");
+  if (loading) return <div className="page-shell py-10"><div className="h-72 animate-pulse rounded-[26px] bg-[#eee8dd]" /></div>
+  if (!cartItems.length) return <div className="page-shell py-16 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f3ec] text-[#2f7d4a]"><ShoppingBag /></div><h1 className="mt-5 text-3xl font-extrabold">Your cart is empty</h1><p className="mt-2 text-[#697168]">Find something lovely from a nearby store.</p><Link to="/customer/vendors"><Button className="mt-6 rounded-xl">Explore stores</Button></Link></div>
+  return <div className="min-h-screen bg-[#faf8f3] pb-14"><div className="page-shell py-7 sm:py-10"><Link to="/customer/vendors" className="inline-flex items-center gap-2 text-sm font-bold text-[#697168] hover:text-[#e86f32]"><ChevronLeft className="h-4 w-4" /> Continue shopping</Link><div className="mt-5 flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.15em] text-[#2f7d4a]">Almost there</p><h1 className="mt-1 text-3xl font-extrabold tracking-[-0.04em]">Your cart <span className="text-[#697168]">({cartItems.length} items)</span></h1></div></div><div className="mt-7 grid gap-6 lg:grid-cols-[1fr_360px]"><section className="space-y-4">{cartItems.map((item) => <article key={item.product._id} className="flex gap-4 rounded-2xl border border-[#ebe5d9] bg-white p-4 sm:p-5"><img src={resolveProductImage(item.product.image)} alt={item.product.name} className="h-24 w-24 rounded-xl object-cover sm:h-28 sm:w-28" /><div className="min-w-0 flex-1"><p className="text-xs font-bold text-[#2f7d4a]">Local store</p><h2 className="mt-1 truncate font-extrabold text-[#182018]">{item.product.name}</h2><p className="mt-1 text-sm text-[#697168]">₹{item.product.price} each</p><div className="mt-4 flex items-center justify-between gap-3"><div className="flex items-center rounded-xl border border-[#e7e4dd]"><button onClick={() => updateQuantity(item, -1)} className="p-2 text-[#697168]"><Minus className="h-4 w-4" /></button><span className="min-w-8 text-center text-sm font-bold">{item.quantity}</span><button onClick={() => updateQuantity(item, 1)} className="p-2 text-[#697168]"><Plus className="h-4 w-4" /></button></div><div className="flex items-center gap-4"><p className="font-extrabold">₹{item.product.price * item.quantity}</p><button onClick={() => removeItem(item.product._id)} className="text-[#c95722] hover:text-[#a94319]" aria-label="Remove item"><Trash2 className="h-4 w-4" /></button></div></div></div></article>)}</section><aside className="h-fit rounded-[22px] border border-[#ebe5d9] bg-white p-5 shadow-lg shadow-[#352c1d]/5 lg:sticky lg:top-24"><h2 className="text-lg font-extrabold">Order summary</h2><div className="mt-5 space-y-3 text-sm"><div className="flex justify-between text-[#697168]"><span>Subtotal</span><span>₹{totals.subtotal}</span></div><div className="flex justify-between text-[#697168]"><span>Delivery</span><span>₹{totals.deliveryCharge}</span></div><div className="flex justify-between text-[#2f7d4a]"><span>Local savings</span><span>-₹{totals.discount}</span></div><div className="border-t border-[#e7e4dd] pt-4"><div className="flex justify-between text-lg font-extrabold"><span>Total</span><span>₹{totals.grandTotal}</span></div></div></div><Button size="lg" onClick={checkout} className="mt-6 w-full rounded-xl"><LockKeyhole className="mr-2 h-4 w-4" /> Secure checkout</Button><p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-[#697168]"><Check className="h-3.5 w-3.5 text-[#2f7d4a]" /> Secure payments powered by Razorpay</p><div className="mt-5 flex items-center gap-2 rounded-xl bg-[#e8f3ec] p-3 text-xs font-bold text-[#2f7d4a]"><Truck className="h-4 w-4" /> Delivery charge is calculated from your location.</div></aside></div></div></div>
+}
 
-      // Wrap geolocation in a promise
-      const getPosition = () =>
-        new Promise((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject)
-        );
-
-      try {
-        const position = await getPosition();
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/users/cart/details`,
-          { userid: user.id, lat, lng }
-        );
-
-        setCartItems(data.cart);
-        setSubtotal(data.subtotal);
-        setDiscount(data.discount);
-        setDeliveryCharge(data.deliveryCharge);
-        setGrandTotal(data.grandTotal);
-      } catch (geoError) {
-        console.warn("Location denied or error, falling back");
-        await fetchCartWithoutLocation(user.id);
-      } finally {
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error fetching cart:", error);
-      setLoading(false);
-    }
-  };
-
-  const fetchCartWithoutLocation = async (userid) => {
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/details`, { userid });
-      setCartItems(data.cart);
-      setSubtotal(data.subtotal);
-      setDiscount(data.discount);
-      setDeliveryCharge(data.deliveryCharge);
-      setGrandTotal(data.grandTotal);
-    } catch (error) {
-      console.error("Error fetching cart without location:", error);
-      // toast({
-      //   title: "Cart fetch failed",
-      //   description: "Unable to fetch cart. Please try again.",
-      //   variant: "destructive",
-      // });
-    }
-  };
-
-  const handleQuantityChange = async (productId, action) => {
-    try {
-      const userData = localStorage.getItem("urbanhive_user");
-      const user = JSON.parse(userData);
-      const updatedItem = cartItems.find((item) => item.product._id === productId);
-      if (!updatedItem) return;
-
-      let newQuantity = updatedItem.quantity;
-      if (action === "increase") newQuantity++;
-      if (action === "decrease" && newQuantity > 1) newQuantity--;
-
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/update`, {
-        userid: user.id,
-        productid: productId,
-        quantity: newQuantity,
-      });
-
-      fetchCartDetails();
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-    }
-  };
-
-  const handleRemoveItem = async (productId) => {
-    try {
-      const userData = localStorage.getItem("urbanhive_user");
-      const user = JSON.parse(userData);
-
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/remove`, {
-        data: { userid: user.id, productId },
-      });
-
-      fetchCartDetails();
-    } catch (error) {
-      console.error("Error removing item:", error);
-    }
-  };
-
-  const handleClearCart = async () => {
-    try {
-      const userData = localStorage.getItem("urbanhive_user");
-      const user = JSON.parse(userData);
-
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/users/cart/clear`, { userid: user.id });
-      setCartItems([]);
-      setSubtotal(0);
-      setDiscount(0);
-      setDeliveryCharge(0);
-      setGrandTotal(0);
-    } catch (error) {
-      console.error("Error clearing cart:", error);
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const userData = localStorage.getItem("urbanhive_user");
-      if (!userData) return console.warn("User not logged in");
-
-      const user = JSON.parse(userData);
-      if (!user.id) return console.warn("Invalid user data");
-
-      let lat;
-      let lng;
-      try {
-        const position = await new Promise((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject)
-        );
-        lat = position.coords.latitude;
-        lng = position.coords.longitude;
-      } catch (locationError) {
-        console.warn("Location unavailable during checkout; using the standard delivery charge.");
-      }
-
-      const orderData = {
-        userId: user.id,
-        vendorId: cartItems[0]?.product.vendor,
-        products: cartItems.map(item => ({
-          productId: item.product._id,
-          quantity: item.quantity,
-        })),
-        totalAmount: grandTotal,
-        lat,
-        lng,
-      };
-
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/create-order`, orderData);
-      const { razorpayOrderId, razorpayPaymentKey, totalAmount } = response.data;
-
-      const options = {
-        key: razorpayPaymentKey,
-        amount: totalAmount * 100,
-        currency: "INR",
-        order_id: razorpayOrderId,
-        name: "UrbanHive Store",
-        description: "Order Payment",
-        image: "https://example.com/logo.png",
-        handler: async function (response) {
-          try {
-            if (!response.razorpay_payment_id) {
-              console.warn("Payment failed, order not saved.");
-              return;
-            }
-
-            const paymentData = {
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-            };
-
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/users/save-order`, paymentData);
-            navigate("/order-success");
-          } catch (error) {
-            console.error("Error saving order:", error);
-            toast({
-              title: "Payment failed",
-              description: "Could not save order. Please contact support.",
-              variant: "destructive",
-            });
-          }
-        },
-        prefill: {
-          name: user.name,
-          email: user.email,
-          contact: user.phone,
-        },
-        theme: {
-          color: "#F37254",
-        },
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Error during checkout:", error);
-    }
-  };
-
-  return (
-    <div className="container mx-auto p-6">
-      <section className="text-center text-white py-12 bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg">
-        <h1 className="text-4xl font-bold">Your Cart</h1>
-        <p className="text-lg mt-2">Review your items before checkout</p>
-      </section>
-
-      {loading ? (
-        <p className="text-center mt-6">Loading...</p>
-      ) : cartItems.length > 0 ? (
-        <>
-          <section className="mt-12">
-            <h2 className="text-2xl font-bold">Cart Items</h2>
-            <div className="space-y-4 mt-4">
-              {cartItems.map((item) => (
-                <div key={item.product._id} className="border p-4 rounded-lg flex items-center justify-between">
-                  <div className="flex items-center">
-                    <img
-                      src={`${import.meta.env.VITE_API_BASE_URL}${item.product.image}`}
-                      alt={item.product.name}
-                      className="w-20 h-20 object-cover rounded-md"
-                    />
-                    <div className="ml-4">
-                      <h3 className="font-semibold">{item.product.name}</h3>
-                      <p className="text-gray-600">₹{item.product.price} each</p>
-                      <div className="mt-2 flex items-center space-x-2">
-                        <button
-                          onClick={() => handleQuantityChange(item.product._id, "decrease")}
-                          className="px-2 py-1 bg-gray-300 rounded-md text-sm"
-                        >
-                          -
-                        </button>
-                        <span className="text-lg font-semibold">{item.quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(item.product._id, "increase")}
-                          className="px-2 py-1 bg-gray-300 rounded-md text-sm"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <p className="text-lg font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
-                    <button onClick={() => handleRemoveItem(item.product._id)} className="text-red-500 hover:text-red-700">
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-12">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <p>Subtotal</p>
-                  <p>₹{subtotal.toFixed(2)}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p>Delivery Charges</p>
-                  <p>₹{deliveryCharge.toFixed(2)}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p>Discount</p>
-                  <p className="text-green-600">-₹{discount.toFixed(2)}</p>
-                </div>
-                <div className="border-t pt-3">
-                  <div className="flex justify-between font-semibold">
-                    <p>Grand Total</p>
-                    <p>₹{grandTotal.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
-              <button onClick={handleSubmit} className="w-full mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700">
-                Proceed to Checkout
-              </button>
-              <button onClick={handleClearCart} className="w-full mt-4 px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-700">
-                Clear Cart
-              </button>
-            </div>
-          </section>
-        </>
-      ) : (
-        <p className="text-center mt-12">Your cart is empty.</p>
-      )}
-    </div>
-  );
-};
-
-export default CartPage;
+export default CartPage

@@ -1,4 +1,5 @@
 import React from "react";
+import { resolveProductImage } from "../lib/images";
 
 const OrderProductsModal = ({ isOpen, onClose, order }) => {
   if (!isOpen || !order) return null;
@@ -13,7 +14,7 @@ const OrderProductsModal = ({ isOpen, onClose, order }) => {
             <li key={index} className="flex items-center space-x-4 border-b pb-2">
               {/* Product Image */}
               <img 
-                src={`${import.meta.env.VITE_API_BASE_URL}${item.productId.image}`} 
+                src={resolveProductImage(item.productId.image)} 
                 alt={item.productId.name} 
                 className="w-12 h-12 object-cover rounded-md"
               />

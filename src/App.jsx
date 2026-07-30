@@ -33,6 +33,7 @@ import EditProfile from './pages/EditProfile'
 import ViewProduct from './pages/ViewProduct'
 import ComplaintPage from './pages/Complaintpage'
 import SuccessPage from './pages/SuccessPage'
+import SearchResultsPage from './pages/SearchResultsPage'
 import UserLayout from './layouts/UserLayout'
 import PublicRoute from './components/PublicRoute'
 
@@ -69,6 +70,7 @@ function App() {
         <Route path='edit-profile' element={<EditProfile/>}/>
         <Route path='orders' element={<UserOrders/>}/>
         <Route path="vendors" element={<VendorListingPage />} />
+        <Route path="search" element={<SearchResultsPage />} />
         <Route path="order-success" element={<SuccessPage />} />
          </Route>
 
