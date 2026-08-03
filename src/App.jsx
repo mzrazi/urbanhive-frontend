@@ -34,6 +34,9 @@ import ViewProduct from './pages/ViewProduct'
 import ComplaintPage from './pages/Complaintpage'
 import SuccessPage from './pages/SuccessPage'
 import SearchResultsPage from './pages/SearchResultsPage'
+import LegalPage from './pages/LegalPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import UserLayout from './layouts/UserLayout'
 import PublicRoute from './components/PublicRoute'
 
@@ -59,7 +62,12 @@ function App() {
       <Route path="/vendor/register" element={<VendorRegisterPage />} />
       <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
+      <Route path="forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="vendor/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="reset-password" element={<ResetPasswordPage />} />
       </Route>
+      <Route path="/privacy" element={<LegalPage />} />
+      <Route path="/terms" element={<LegalPage />} />
       
       <Route path="/customer" element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>
        <Route index element={<UserHome/>}/>

@@ -21,7 +21,6 @@ const DashboardLayout = ({ userType }) => {
     { name: 'Dashboard', href: '/vendor', icon: Home },
     { name: 'Products', href: '/vendor/home', icon: Package },
     { name: 'Orders', href: '/vendor/orders', icon: Truck },
-    { name: 'Profile', href: '/vendor/profile', icon: User },
   ]
 
   const links = userType === 'vendor' ? vendorLinks : customerLinks
