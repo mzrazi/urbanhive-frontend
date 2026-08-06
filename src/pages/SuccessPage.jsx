@@ -1,21 +1,6 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom'
+import { CheckCircle2, Package } from 'lucide-react'
+import { Button } from '../components/ui/button'
 
-const SuccessPage = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="container mx-auto p-6 text-center">
-      <h1 className="text-4xl font-bold text-green-600">Order Successfully Placed!</h1>
-      <p className="mt-4">Thank you for shopping with us. Your order has been placed successfully.</p>
-      <button
-        onClick={() => navigate("/customer")}
-        className="mt-6 px-6 py-2 bg-urbanhive-600 text-white rounded-md hover:bg-urbanhive-700"
-      >
-        Go to Home
-      </button>
-    </div>
-  );
-};
-
-export default SuccessPage;
+const SuccessPage = () => <div className="min-h-screen bg-[#faf8f3]"><div className="page-shell flex min-h-[70vh] max-w-xl items-center justify-center py-10"><section className="w-full rounded-[26px] border border-[#e7e4dd] bg-white p-7 text-center shadow-xl shadow-[#352c1d]/5 sm:p-10"><span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e8f3ec] text-[#2f7d4a]"><CheckCircle2 className="h-8 w-8" /></span><p className="mt-6 text-xs font-bold uppercase tracking-[.14em] text-[#2f7d4a]">Payment confirmed</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em]">Your order is placed.</h1><p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#697168]">Your local store has received the order. Follow its progress from your orders page.</p><div className="mt-7 grid gap-3 sm:grid-cols-2"><Link to="/customer/orders"><Button className="w-full rounded-xl"><Package className="mr-2 h-4 w-4" /> Track order</Button></Link><Link to="/customer"><Button variant="outline" className="w-full rounded-xl">Continue shopping</Button></Link></div></section></div></div>
+export default SuccessPage

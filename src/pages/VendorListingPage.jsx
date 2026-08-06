@@ -1,174 +1,206 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { Clock3, LocateFixed, MapPin, Search, Star, Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  getDeliveryLocation,
+  saveDeliveryLocation,
+} from "../lib/deliveryLocation";
 
 const VendorListingPage = () => {
-  const [vendorsByCategory, setVendorsByCategory] = useState({});
+  const [vendors, setVendors] = useState([]);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All");
+  const [location, setLocation] = useState(getDeliveryLocation);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
- 
-  const fetchVendors = async (coordinates) => {
+  const load = async (coords = location) => {
+    setLoading(true);
+    setError("");
     try {
-      
-      
-      // Fetch vendors based on coordinates (replace with your API endpoint)
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/users/nearby?lat=${coordinates.latitude}&lng=${coordinates.longitude}`
+      const lat = Number.isFinite(coords.lat) ? coords.lat : 22.5726;
+      const lng = Number.isFinite(coords.lng) ? coords.lng : 88.3639;
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/nearby?lat=${lat}&lng=${lng}`,
       );
-      const vendors = response.data;
-              
-
-      
-      const groupedVendors = vendors.reduce((acc, vendor) => {
-        if (!acc[vendor.category]) {
-          acc[vendor.category] = [];
-        }
-        acc[vendor.category].push(vendor);
-        return acc;
-      }, {});
-      console.log(groupedVendors);
-      
-      setVendorsByCategory(groupedVendors);
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-      setError("Failed to fetch vendors. Please try again.");
+      setVendors(data);
+    } catch {
+      setError("We could not load local stores. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      setLoading(true);
-      setError("");
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          await fetchVendors({ latitude, longitude });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setError("Failed to get your current location.");
-          setLoading(false);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by this browser.");
-    }
-  };
-
   useEffect(() => {
-    
-    handleUseCurrentLocation();
+    load();
   }, []);
-
-  const categoryDefaultImages = {
-    Clothing: "https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg",
-    Grocery: "https://images.pexels.com/photos/5945721/pexels-photo-5945721.jpeg",
-    "Sports Goods": "https://images.pexels.com/photos/3997982/pexels-photo-3997982.jpeg",
-    Furniture: "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg",
-    "Spare Parts": "https://images.pexels.com/photos/4488647/pexels-photo-4488647.jpeg",
-    Electronics: "https://images.pexels.com/photos/3825581/pexels-photo-3825581.jpeg",
-    Books: "https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg",
-    "Beauty & Personal Care": "https://images.pexels.com/photos/6621180/pexels-photo-6621180.jpeg",
-    "Toys & Games": "https://images.pexels.com/photos/3661190/pexels-photo-3661190.jpeg",
-    "Home Appliances": "https://images.pexels.com/photos/3769747/pexels-photo-3769747.jpeg",
-    Automotive: "https://images.pexels.com/photos/4489749/pexels-photo-4489749.jpeg",
-    "Health & Wellness": "https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg",
-    Jewelry: "https://images.pexels.com/photos/1550048/pexels-photo-1550048.jpeg",
-    "Pet Supplies": "https://images.pexels.com/photos/4588018/pexels-photo-4588018.jpeg",
-    Others: "https://images.pexels.com/photos/357514/pexels-photo-357514.jpeg",
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation)
+      return setError("Location is not supported by this browser.");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const next = await saveDeliveryLocation(
+          coords.latitude,
+          coords.longitude,
+        );
+        setLocation(next);
+        load(next);
+      },
+      () =>
+        setError(
+          "Allow location permission or choose your delivery location first.",
+        ),
+    );
   };
-  
-
+  const categories = useMemo(
+    () => [
+      "All",
+      ...new Set(vendors.map((vendor) => vendor.category).filter(Boolean)),
+    ],
+    [vendors],
+  );
+  const visible = vendors.filter(
+    (vendor) =>
+      (category === "All" || vendor.category === category) &&
+      `${vendor.storeName} ${vendor.category} ${vendor.storeAddress}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
   return (
-    <div className="container mx-auto p-6">
-      <section className="text-center text-white py-12 bg-gradient-to-r from-urbanhive-800 to-urbanhive-600 rounded-lg">
-        <h1 className="text-4xl font-bold">Find Vendors Near You</h1>
-        <p className="text-lg mt-2">Discover local businesses in your area</p>
-        <div className="mt-6 flex justify-center">
-          <Button onClick={handleUseCurrentLocation}>
-            Use My Current Location
-          </Button>
-        </div>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </section>
-
-      {loading ? (
-        <p className="text-center mt-6">Loading...</p>
-      ) : (
-        <>
-          {Object.entries(vendorsByCategory).map(([category, vendors]) => (
-            <section key={category} className="mt-12">
-              <h2 className="text-2xl font-bold">{category}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                {vendors.map((vendor) => (
-                 <Card key={vendor.id} className="p-4 flex flex-col gap-2 h-[300px]">
-                 <div className="w-full h-32 overflow-hidden rounded-lg">
-                   <img
-                     src={vendor.logo || categoryDefaultImages[vendor.category] || "https://via.placeholder.com/150"}
-                     alt={`${vendor.storeName} logo`}
-                     className="w-full h-full object-cover"
-                   />
-                 </div>
-                 <CardContent className="p-2 flex-1 flex flex-col justify-between">
-                   <div>
-                     <h3 className="font-semibold text-lg">{vendor.storeName}</h3>
-                     <p className="text-sm text-gray-500">{vendor.storeAddress}</p>
-                     
-
-                  <div className="flex justify-center items-center mt-2">
-                    {/* Render 5 stars with possible half stars */}
-                    {Array.from({ length: 5 }, (_, index) => {
-                      const ratingFloor = Math.floor(vendor.averageRating);
-                      const ratingDecimal = vendor.averageRating - ratingFloor;
-
-                      // Full star
-                      if (index < ratingFloor) {
-                        return (
-                          <span key={index} className="mr-1 text-yellow-500">
-                            <FaStar />
-                          </span>
-                        );
-                      }
-
-                      // Half star
-                      if (index === ratingFloor && ratingDecimal >= 0.5) {
-                        return (
-                          <span key={index} className="mr-1 text-yellow-500">
-                            <FaStarHalfAlt />
-                          </span>
-                        );
-                      }
-
-                      // Empty star
-                      return (
-                        <span key={index} className="mr-1 text-gray-300">
-                          <FaRegStar />
-                        </span>
-                      );
-                    })}
-                    <span className="text-gray-600 ml-2">({vendor.averageRating.toFixed(1)})</span>
-                  </div>
-
-                   </div>
-                   <Link to={`/customer/products/${vendor._id}`}>
-                     <Button className="mt-2 w-full">Visit Store</Button>
-                   </Link>
-                 </CardContent>
-               </Card>
-                ))}
-              </div>
-            </section>
+    <div className="min-h-screen bg-[#faf8f3] pb-14">
+      <div className="page-shell py-7 sm:py-10">
+        <section className="relative overflow-hidden rounded-[26px] border border-[#e7e4dd] bg-[#f4eadb] p-6 sm:p-8">
+          <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[#e86f32]/10 blur-2xl" />
+          <div className="relative flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.15em] text-[#2f7d4a]">
+                Neighbourhood marketplace
+              </p>
+              <h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em] text-[#182018] sm:text-4xl">
+                Stores near your delivery area
+              </h1>
+              <p className="mt-2 text-sm text-[#697168]">
+                Browse trusted local sellers and shop everything from one store
+                at a time.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={useCurrentLocation}
+              className="rounded-xl bg-white"
+            >
+              <LocateFixed className="mr-2 h-4 w-4" /> Use current location
+            </Button>
+          </div>
+          <div className="relative mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a9189]" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                className="h-11 w-full rounded-xl border border-[#e7e4dd] bg-white pl-12 pr-3 text-sm outline-none focus:border-[#e86f32]"
+                placeholder="Search stores or categories"
+              />
+            </div>
+            <Link
+              to="/customer/location"
+              title={location.label}
+              className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-[#e7e4dd] bg-white px-4 text-sm font-bold text-[#4c564b] sm:w-auto sm:max-w-[230px]"
+            >
+              <MapPin className="h-4 w-4 shrink-0 text-[#2f7d4a]" />
+              <span className="truncate">{location.label}</span>
+            </Link>
+          </div>
+        </section>
+        <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
+          {categories.map((item) => (
+            <button
+              key={item}
+              onClick={() => setCategory(item)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${category === item ? "bg-[#182018] text-white" : "border border-[#e7e4dd] bg-white text-[#566056]"}`}
+            >
+              {item}
+            </button>
           ))}
-        </>
-      )}
+        </div>
+        {error ? (
+          <div className="mt-8 rounded-2xl border border-[#f0c9c4] bg-[#fff6f5] p-6 text-center">
+            <p className="font-bold text-[#9b332a]">{error}</p>
+            <Button onClick={() => load()} className="mt-4 rounded-xl">
+              Try again
+            </Button>
+          </div>
+        ) : loading ? (
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="h-44 animate-pulse rounded-2xl bg-[#eee8dd]"
+              />
+            ))}
+          </div>
+        ) : visible.length ? (
+          <section className="mt-8">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-extrabold">
+                {visible.length} local{" "}
+                {visible.length === 1 ? "store" : "stores"}
+              </h2>
+              <p className="max-w-[45%] truncate text-xs font-bold text-[#697168]">
+                {location.label}
+              </p>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visible.map((vendor) => (
+                <Link
+                  key={vendor._id}
+                  to={`/customer/products/${vendor._id}`}
+                  className="group rounded-2xl border border-[#ebe5d9] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-xl"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f3ec] text-[#2f7d4a]">
+                      <Store className="h-6 w-6" />
+                    </span>
+                    <span className="rounded-full bg-[#e8f3ec] px-2.5 py-1 text-[10px] font-bold text-[#2f7d4a]">
+                      Open now
+                    </span>
+                  </div>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[.12em] text-[#2f7d4a]">
+                    {vendor.category}
+                  </p>
+                  <h3 className="mt-1 text-lg font-extrabold text-[#182018]">
+                    {vendor.storeName}
+                  </h3>
+                  <p className="mt-1 truncate text-sm text-[#697168]">
+                    {vendor.storeAddress || "Local store"}
+                  </p>
+                  <div className="mt-5 flex items-center justify-between border-t border-[#eee8dd] pt-4 text-xs font-bold text-[#566056]">
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3.5 w-3.5 fill-[#f3a027] text-[#f3a027]" />{" "}
+                      {Number(vendor.averageRating || 0).toFixed(1)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock3 className="h-3.5 w-3.5 text-[#2f7d4a]" /> 25–35
+                      min
+                    </span>
+                    <span className="text-[#e86f32]">Visit →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <div className="mt-8 rounded-2xl bg-white p-10 text-center">
+            <Store className="mx-auto h-8 w-8 text-[#2f7d4a]" />
+            <h2 className="mt-3 text-xl font-extrabold">No matching stores</h2>
+            <p className="mt-2 text-sm text-[#697168]">
+              Try another search, category, or delivery location.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-
 export default VendorListingPage;

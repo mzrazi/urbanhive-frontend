@@ -12,7 +12,7 @@ const Navbar = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user, userType, logout } = useAuth()
   const { totalItems } = useCart()
-  const { location, requestLocation } = useDeliveryLocation()
+  const { location } = useDeliveryLocation()
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -45,7 +45,7 @@ const Navbar = () => {
     if (!searchQuery.trim()) return
     navigate(isAuthenticated && userType === 'customer' ? `/customer/search?q=${encodeURIComponent(searchQuery.trim())}` : '/login')
   }
-  const updateLocation = async () => { try { await requestLocation() } catch (error) { window.alert(error.message) } }
+  const updateLocation = () => navigate('/customer/location')
   
 
   return (

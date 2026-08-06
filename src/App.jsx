@@ -37,6 +37,8 @@ import SearchResultsPage from './pages/SearchResultsPage'
 import LegalPage from './pages/LegalPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import VendorSettingsPage from './pages/VendorSettingsPage'
+import CustomerLocationPage from './pages/CustomerLocationPage'
 import UserLayout from './layouts/UserLayout'
 import PublicRoute from './components/PublicRoute'
 
@@ -45,8 +47,9 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-urbanhive-600"></div>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#faf8f3] px-6 text-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#e8f3ec] border-t-[#e86f32]"></div>
+        <div><p className="font-extrabold text-[#182018]">Getting UrbanHive ready…</p><p className="mt-1 max-w-sm text-sm leading-6 text-[#697168]">The first request can take up to a minute while our free server wakes up. Thanks for your patience.</p></div>
       </div>
     )
   }
@@ -79,6 +82,7 @@ function App() {
         <Route path='orders' element={<UserOrders/>}/>
         <Route path="vendors" element={<VendorListingPage />} />
         <Route path="search" element={<SearchResultsPage />} />
+        <Route path="location" element={<CustomerLocationPage />} />
         <Route path="order-success" element={<SuccessPage />} />
          </Route>
 
@@ -89,6 +93,7 @@ function App() {
         <Route index element={<VendorDashboard />} />
         <Route path="home" element={<VendorHome />} />
         <Route path='orders' element={<VendorOrdersPage/>}/>
+        <Route path="settings" element={<VendorSettingsPage />} />
         <Route path="add-product" element={<AddProductPage />} />
         <Route path="edit-product/:productId" element={<EditProductPage />} />
         </Route>
